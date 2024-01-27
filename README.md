@@ -4,6 +4,38 @@ Place to hold stencil templates to be used in Sourcery.
 
 ## Available Templates
 
+### AutoMappableFromDTO
+Creates the initializer for class that have a DTO in order to map from DTO to Domain entity.
+```swift
+// Input ⬅️
+struct RoundDTO: Decodable {
+    let id: String
+    let position: Int
+    let status: RoundStatusDTO
+    let groups: [RoundGroupDTO]
+}
+
+struct Round: Equatable, Identifiable, AutoMappableFromDTO {
+    let id: String
+    let position: Int
+    let status: RoundStatus
+    let groups: [RoundGroup]
+}
+
+// Output ➡️
+extension Round {
+    init(
+        dto: RoundDTO
+        mapGroupsEntityFromDTO: ([RoundGroupDTO]) -> [RoundGroup]
+    ) {
+        self.id = dto.id
+        self.position = dto.position
+        self.status = .init(dto: dto.status)
+        self.groups = mapGroupsEntityFromDTO(dto.groups)
+    }
+}
+```
+
 ### AutoFixture
 Creates special initializer `fixture` to simplify testing when mocking objects.
 ```swift
@@ -79,56 +111,65 @@ extension MyModel {
 #endif
 ```
 
-### AutoMappableFromDTO
-Creates the initializer for class that have a DTO in order to map from DTO to Domain entity.
-```swift
-// Input ⬅️
-struct RoundDTO: Decodable {
-    let id: String
-    let position: Int
-    let status: RoundStatusDTO
-    let groups: [RoundGroupDTO]
-}
-
-struct Round: Equatable, Identifiable, AutoMappableFromDTO {
-    let id: String
-    let position: Int
-    let status: RoundStatus
-    let groups: [RoundGroup]
-}
-
-// Output ➡️
-extension Round {
-    init(
-        dto: RoundDTO
-        mapGroupsEntityFromDTO: ([RoundGroupDTO]) -> [RoundGroup]
-    ) {
-        self.id = dto.id
-        self.position = dto.position
-        self.status = .init(dto: dto.status)
-        self.groups = mapGroupsEntityFromDTO(dto.groups)
-    }
-}
-```
-
 ## AsyncAutoStub
 Creates a `Stub` based on a dependency protocol, mostly applicable for datasources like services and repositories.
 NOTE: it assumes that all models returned have a `fixture` method previously defined.
 ```swift
 // Input ⬅️
+enum MyEnum {
+    case firstCase
+    case secondCase
+}
+
 protocol SomeServiceProtocol {
     func getSomething(_ id: String) async throws -> Something
+    func getEnum() async throws -> MyEnum
+    func getDate() async throws -> Date
+    func getData() async throws -> Data
+    func getURL() async throws -> URL
+    func getArray() async throws -> [String]
+    func getDictionary() async throws -> [String: String]
     func postSomething() async throws
 }
 
 // Output ➡️
 #if DEBUG
-public final class SomeServiceStub: SomeServiceInterface {
+public final class SomeServiceStub: SomeServiceProtocol {
     public init() {}
 
     public var getSomethingResultToBeReturned: Result<Something, Error> = .success(.fixture())
     public func getSomething(_ id: String) async throws -> Something {
         try getSomethingResultToBeReturned.get()
+    }
+
+    public var getEnumResultToBeReturned: Result<MyEnum, Error> = .success(.firstCase)
+    public func getEnum() async throws -> MyEnum {
+        try getEnumResultToBeReturned.get()
+    }
+
+    public var getDateResultToBeReturned: Result<Date, Error> = .success(.init())
+    public func getDate() async throws -> Date {
+        try getDateResultToBeReturned.get()
+    }
+
+    public var getDataResultToBeReturned: Result<Data, Error> = .success(.init())
+    public func getData() async throws -> Data {
+        try getDataResultToBeReturned.get()
+    }
+
+    public var getURLResultToBeReturned: Result<URL, Error> = .success(.init())
+    public func getURL() async throws -> URL {
+        try getURLResultToBeReturned.get()
+    }
+
+    public var getArrayResultToBeReturned: Result<[String], Error> = .success(.init())
+    public func getArray() async throws -> [String] {
+        try getArrayResultToBeReturned.get()
+    }
+
+    public var getDictionaryResultToBeReturned: Result<[String: String], Error> = .success(.init())
+    public func getDictionary() async throws -> [String: String] {
+        try getDictionaryResultToBeReturned.get()
     }
 
     public var postSomethingResultToBeReturned: Result<Void, Error> = .success(())
@@ -137,6 +178,7 @@ public final class SomeServiceStub: SomeServiceInterface {
     }
 }
 #endif
+```
 
 ## AsyncAutoFailing
 Creates a `Failing` based on a dependency protocol.
@@ -168,12 +210,12 @@ public struct SomeServiceFailing: SomeServiceProtocol {
 
     public func getSomething(_ id: String) async throws -> Something {
         XCTFail("\(#function) is not implemented.")
-        return .init()
+        return .fixture()
     }
 
     public func getEnum() async throws -> MyEnum {
         XCTFail("\(#function) is not implemented.")
-        return .init()
+        return .firstCase
     }
 
     public func getDate() async throws -> Date {
