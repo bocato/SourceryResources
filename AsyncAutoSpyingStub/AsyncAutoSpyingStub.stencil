@@ -112,8 +112,8 @@
 {% endmacro %}
 
 
-{% for type in types.protocols %}{% if type.name != "AutoMockable" %}
-
+{% for type in types.protocols %}{# Use types.implementing.AsyncAutoSpyingStub instead of types.protocols if decided to have this protocol #}
+#if DEBUG
 {% newline %}// MARK: - {{ type.name }}SpyingStub
 
 public final class  {{ type.name }}SpyingStub: {{ type.name }} {
@@ -124,4 +124,5 @@ public final class  {{ type.name }}SpyingStub: {{ type.name }} {
     {% call mockMethod method %}
 {% endfor %}
 }
-{% endif %}{% endfor %}
+{% endfor %}
+#endif

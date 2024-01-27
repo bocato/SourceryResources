@@ -393,6 +393,8 @@ protocol SomethingRepositoryInterface {
 
 ### Output ➡️
 ```swift
+#if DEBUG
+
 // MARK: - SomethingRepositoryInterfaceSpyingStub
 
 public final class  SomethingRepositoryInterfaceSpyingStub: SomethingRepositoryInterface {
@@ -469,4 +471,5 @@ public final class  SomethingRepositoryInterfaceSpyingStub: SomethingRepositoryI
         postSomethingStringParamIntParamSomethingParamReceivedInvocations.append((stringParam: stringParam, intParam: intParam, somethingParam: somethingParam))
     }
 }
+#endif
 ```
