@@ -1,9 +1,22 @@
+{% macro isCollectionType type %}
+    {% if type.name|contains:"[" and type.name|contains:"]" %}
+        {% if type.name|contains:":" %} {# detected dictionary [<keyType>:<valueType>]  #}
+            true
+        {% else %}{# detected array [<valueType>]  #}
+            true 
+        {% endif %}
+    {% else %}
+        false
+    {% endif %}
+{% endmacro %}
+
 {% macro defaultValueForType variable %}
     {% set foundationTypesWithNoFixture %} 
     [
         "Date", "Data", "URL"
     ]
     {% endset %}
+    {% set collectionTypeFound %} {% call isCollectionType variable.type %} {% endset %}
     {% if variable.typeName.name == "String" %}
         "{{ variable.name }}"
     {% elif variable.typeName.name == "Character" %}
@@ -15,6 +28,8 @@
     {% elif variable.typeName.name == "Date" %}
         .distantFuture
     {% elif foundationTypesWithNoFixture|contains: variable.typeName.name %}
+        .init()
+    {% elif collectionTypeFound %}
         .init()
     {% elif variable.type.kind == "enum" %}
         .{{ variable.type.cases.first.name }}

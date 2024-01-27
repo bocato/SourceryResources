@@ -44,16 +44,16 @@ extension MyModel {
         aBool: Bool = false, 
         aString: String = "aString", 
         aCharacter: Character = "", 
-        anArray: Array = .fixture(), 
-        anArray2: [Int] = .fixture(), 
-        aDictionary: Dictionary = .fixture(), 
-        aDictionary2: [String: String] = .fixture(), 
-        aSet: Set = .fixture(), 
+        anArray: Array = .init(), 
+        anArray2: [Int] = .init(), 
+        aDictionary: Dictionary = .init(), 
+        aDictionary2: [String: String] = .init(), 
+        aSet: Set = .init(), 
         aDate: Date = .distantFuture, 
         aData: Data = .init(), 
         anURL: URL = .init(), 
-        aSomething: Something = .fixture(), 
-        anEnum: MyEnum = .firstCase
+        aSomething: Something = .init(), 
+        anEnum: MyEnum = .init()
     ) -> Self {
         return .init(
             anInt: anInt, 
