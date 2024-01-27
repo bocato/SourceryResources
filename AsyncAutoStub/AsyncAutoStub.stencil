@@ -1,0 +1,28 @@
+{% macro getCleanTypeName typeName %}
+    {% if typeName|contains: "Interface" %}
+        {{ typeName|replace: "Interface", ""}}
+    {% elif typeName|contains: "Protocol" %}
+        {{ typeName|replace: "Protocol", ""}}
+    {% endif %}
+{% endmacro %}
+
+{% for type in types.protocols %}
+#if DEBUG
+{% set cleanTypeName %} {% call getCleanTypeName type.name %}  {% endset %}
+public final class {{ cleanTypeName|removeNewlines }}Stub: {{ type.name }} {
+    public init() {}
+    {% for method in type.allMethods %}
+
+    {% if method.returnTypeName.name != "Void" %}
+    public var {{ method.shortName }}ResultToBeReturned: Result<{{ method.returnTypeName.name }}, Error> = .success(.fixture())
+    {% else %}
+    public var {{ method.shortName }}ResultToBeReturned: Result<Void, Error> = .success(())
+    {% endif %}
+    public func {{ method.name }} async throws {% if method.returnTypeName.name != "Void" %}-> {{ method.returnTypeName.name }} {% endif %}{
+        try {{ method.shortName }}ResultToBeReturned.get()
+    }
+    {% endfor %}
+}
+#endif
+
+{% endfor %}
