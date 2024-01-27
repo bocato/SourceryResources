@@ -1,0 +1,43 @@
+{% macro defaultValueForType variable %}
+    {% set foundationTypesWithNoFixture %} 
+    [
+        "Date", "Data", "URL"
+    ]
+    {% endset %}
+    {% if variable.typeName.name == "String" %}
+        "{{ variable.name }}"
+    {% elif variable.typeName.name == "Character" %}
+        ""
+    {% elif variable.typeName.name == "Int" or variable.typeName.name == "Double" or variable.typeName.name == "Float" or variable.typeName.name == "UInt" %}
+        0
+    {% elif variable.typeName.name == "Bool" %}
+        false
+    {% elif variable.typeName.name == "Date" %}
+        .distantFuture
+    {% elif foundationTypesWithNoFixture|contains: variable.typeName.name %}
+        .init()
+    {% elif variable.type.kind == "enum" %}
+        .{{ variable.type.cases.first.name }}
+    {% else %}
+        .fixture()
+    {% endif %}
+{% endmacro %}
+
+{% for type in types.structs %}{# Use types.implementing.AutoFixture instead of types.structs if decided to have this protocol #}
+#if DEBUG
+extension {{ type.name }} {
+    static func fixture(
+        {% for variable in type.storedVariables %}
+        {% set defaultValue %} {% call defaultValueForType variable %} {% endset %}
+        {{ variable.name }}: {{ variable.typeName.name }} = {{ defaultValue|removeNewlines }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    ) -> Self {
+        return .init(
+            {% for variable in type.storedVariables %}
+            {{ variable.name }}: {{ variable.name }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        )
+    }
+}
+#endif
+{% endfor %}
