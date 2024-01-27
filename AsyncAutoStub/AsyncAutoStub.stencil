@@ -6,6 +6,26 @@
     {% endif %}
 {% endmacro %}
 
+{% macro resolveReturnValueForReturnType method %}
+    {% set foundationTypesWithNoFixture %} 
+    [
+        "Date", "Data", "URL"
+    ]
+    {% endset %}
+    {% if method.returnType.kind == "enum" %}
+        .{{ method.returnType.cases.first.name }}
+    {% elif foundationTypesWithNoFixture|contains: method.returnTypeName %}
+        .init()
+    {% else %}
+        {% if method.returnTypeName|contains:"[" and method.returnTypeName|contains:"]" %}
+            .init()
+        {% else %}
+            .fixture()
+        {% endif %}
+    {% endif %}
+{% endmacro %}
+
+
 {% for type in types.protocols %}
 #if DEBUG
 {% set cleanTypeName %} {% call getCleanTypeName type.name %}  {% endset %}
@@ -14,7 +34,8 @@ public final class {{ cleanTypeName|removeNewlines }}Stub: {{ type.name }} {
     {% for method in type.allMethods %}
 
     {% if method.returnTypeName.name != "Void" %}
-    public var {{ method.shortName }}ResultToBeReturned: Result<{{ method.returnTypeName.name }}, Error> = .success(.fixture())
+    {% set returnValue %} {% call resolveReturnValueForReturnType method %} {% endset %}
+    public var {{ method.shortName }}ResultToBeReturned: Result<{{ method.returnTypeName.name }}, Error> = .success({{ returnValue|removeNewlines }})
     {% else %}
     public var {{ method.shortName }}ResultToBeReturned: Result<Void, Error> = .success(())
     {% endif %}
