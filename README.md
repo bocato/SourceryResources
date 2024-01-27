@@ -136,7 +136,7 @@ protocol SomeServiceProtocol {
 ### Output ➡️
 ```swift
 #if DEBUG
-// MARK: - SomeServiceProtocolSpy
+// MARK: - SomeServiceProtocolStub
 
 public final class SomeServiceStub: SomeServiceProtocol {
     public init() {}
