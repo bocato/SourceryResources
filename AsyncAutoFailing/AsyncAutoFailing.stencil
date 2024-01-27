@@ -1,0 +1,44 @@
+{% macro getCleanTypeName typeName %}
+    {% if typeName|contains: "Interface" %}
+        {{ typeName|replace: "Interface", ""}}
+    {% elif typeName|contains: "Protocol" %}
+        {{ typeName|replace: "Protocol", ""}}
+    {% endif %}
+{% endmacro %}
+
+{% macro resolveReturnValueForReturnType type %}
+    {% set foundationTypesWithNoFixture %} 
+    [
+        "Date", "Data", "URL"
+    ]
+    {% endset %}
+    {% if type.kind == "enum" %}
+        .{{ type.cases.first.name }}
+    {% elif foundationTypesWithNoFixture|contains: type.name %}
+        .init()
+    {% else %}
+        .fixture()
+    {% endif %}
+{% endmacro %}
+
+{% for type in types.protocols %}
+#if DEBUG
+import XCTestDynamicOverlay
+
+{% set cleanTypeName %} {% call getCleanTypeName type.name %}  {% endset %}
+public struct {{ cleanTypeName|removeNewlines }}Failing: {{ type.name }} {
+    public init() {}
+    {% for method in type.allMethods %}
+
+    public func {{ method.name }} async throws {% if method.returnTypeName.name != "Void" %}-> {{ method.returnTypeName.name }} {% endif %}{
+        XCTFail("\(#function) is not implemented.")
+        {% if method.returnTypeName.name != "Void" %}
+        {% set defaultValue %} {% call resolveReturnValueForReturnType method.returnType %} {% endset %}
+        return {{ defaultValue|removeNewlines }}
+        {% endif %}
+    }
+    {% endfor %}
+}
+#endif
+
+{% endfor %}
