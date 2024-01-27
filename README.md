@@ -114,8 +114,8 @@ extension MyModel {
 ## AsyncAutoStub
 Creates a `Stub` based on a dependency protocol, mostly applicable for datasources like services and repositories.
 NOTE: it assumes that all models returned have a `fixture` method previously defined.
+### Input ⬅️
 ```swift
-// Input ⬅️
 enum MyEnum {
     case firstCase
     case secondCase
@@ -131,46 +131,64 @@ protocol SomeServiceProtocol {
     func getDictionary() async throws -> [String: String]
     func postSomething() async throws
 }
+```
 
-// Output ➡️
+### Output ➡️
+```swift
 #if DEBUG
 public final class SomeServiceStub: SomeServiceProtocol {
     public init() {}
+
+    // MARK: - getSomething
 
     public var getSomethingResultToBeReturned: Result<Something, Error> = .success(.fixture())
     public func getSomething(_ id: String) async throws -> Something {
         try getSomethingResultToBeReturned.get()
     }
 
+    // MARK: - getEnum
+
     public var getEnumResultToBeReturned: Result<MyEnum, Error> = .success(.firstCase)
     public func getEnum() async throws -> MyEnum {
         try getEnumResultToBeReturned.get()
     }
+
+    // MARK: - getDate
 
     public var getDateResultToBeReturned: Result<Date, Error> = .success(.init())
     public func getDate() async throws -> Date {
         try getDateResultToBeReturned.get()
     }
 
+    // MARK: - getData
+
     public var getDataResultToBeReturned: Result<Data, Error> = .success(.init())
     public func getData() async throws -> Data {
         try getDataResultToBeReturned.get()
     }
+
+    // MARK: - getURL
 
     public var getURLResultToBeReturned: Result<URL, Error> = .success(.init())
     public func getURL() async throws -> URL {
         try getURLResultToBeReturned.get()
     }
 
+    // MARK: - getArray
+
     public var getArrayResultToBeReturned: Result<[String], Error> = .success(.init())
     public func getArray() async throws -> [String] {
         try getArrayResultToBeReturned.get()
     }
 
+    // MARK: - getDictionary
+
     public var getDictionaryResultToBeReturned: Result<[String: String], Error> = .success(.init())
     public func getDictionary() async throws -> [String: String] {
         try getDictionaryResultToBeReturned.get()
     }
+
+    // MARK: - postSomething
 
     public var postSomethingResultToBeReturned: Result<Void, Error> = .success(())
     public func postSomething() async throws {
@@ -183,8 +201,8 @@ public final class SomeServiceStub: SomeServiceProtocol {
 ## AsyncAutoFailing
 Creates a `Failing` based on a dependency protocol.
 NOTE: it assumes that all models returned have a `fixture` method previously defined.
+### Input ⬅️
 ```swift
-// Input ⬅️
 enum MyEnum {
     case firstCase
     case secondCase
@@ -200,8 +218,10 @@ protocol SomeServiceProtocol {
     func getDictionary() async throws -> [String: String]
     func postSomething() async throws
 }
+```
 
-// Output ➡️
+### Output ➡️
+```swift
 #if DEBUG
 import XCTestDynamicOverlay
 
@@ -253,9 +273,9 @@ public struct SomeServiceFailing: SomeServiceProtocol {
 ## AsyncAutoSpyingStub
 Generates `Test Doubles` that serve as `Spy` and `Stub` based on a dependency protocol, mostly applicable for datasources like services and repositories.
 NOTE: it assumes that all models returned have a `fixture` method previously defined.
-*Based on `Protocol Mock` template from `Łukasz Kuczborski`*
+*Based on `Protocol Mock` template from `Łukasz Kuczborski``
+### Input ⬅️
 ```swift
-// Input ⬅️
 enum SomeEnum {
     case firstCase
     case secondCase
@@ -268,9 +288,10 @@ protocol SomethingRepositoryInterface {
     func fetchArrayOfSomeEnum() async throws -> [SomeEnum]
     func postSomething(stringParam: String, intParam: Int, somethingParam: Something) async throws
 }
+```
 
-// Output ➡️
-
+### Output ➡️
+```swift
 // MARK: - SomethingRepositoryInterfaceSpyingStub
 
 public final class  SomethingRepositoryInterfaceSpyingStub: SomethingRepositoryInterface {

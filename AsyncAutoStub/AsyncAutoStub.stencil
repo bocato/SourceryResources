@@ -7,6 +7,7 @@
 {% endmacro %}
 
 {% macro resolveReturnValueForReturnType method %}
+{% typed method as Method %}
     {% set foundationTypesWithNoFixture %} 
     [
         "Date", "Data", "URL"
@@ -32,6 +33,8 @@
 public final class {{ cleanTypeName|removeNewlines }}Stub: {{ type.name }} {
     public init() {}
     {% for method in type.allMethods %}
+
+    // MARK: - {{ method.shortName }}
 
     {% if method.returnTypeName.name != "Void" %}
     {% set returnValue %} {% call resolveReturnValueForReturnType method %} {% endset %}
