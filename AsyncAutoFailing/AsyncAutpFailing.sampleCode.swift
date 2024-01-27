@@ -9,5 +9,7 @@ protocol SomeServiceProtocol {
     func getDate() async throws -> Date
     func getData() async throws -> Data
     func getURL() async throws -> URL
+    func getArray() async throws -> [String]
+    func getDictionary() async throws -> [String: String]
     func postSomething() async throws
 }

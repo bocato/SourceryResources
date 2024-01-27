@@ -6,18 +6,22 @@
     {% endif %}
 {% endmacro %}
 
-{% macro resolveReturnValueForReturnType type %}
+{% macro resolveReturnValueForReturnType method %}
     {% set foundationTypesWithNoFixture %} 
     [
         "Date", "Data", "URL"
     ]
     {% endset %}
-    {% if type.kind == "enum" %}
-        .{{ type.cases.first.name }}
-    {% elif foundationTypesWithNoFixture|contains: type.name %}
+    {% if method.returnType.kind == "enum" %}
+        .{{ method.returnType.cases.first.name }}
+    {% elif foundationTypesWithNoFixture|contains: method.returnTypeName %}
         .init()
     {% else %}
-        .fixture()
+        {% if method.returnTypeName|contains:"[" and method.returnTypeName|contains:"]" %}
+            .init()
+        {% else %}
+            .fixture()
+        {% endif %}
     {% endif %}
 {% endmacro %}
 
@@ -33,8 +37,8 @@ public struct {{ cleanTypeName|removeNewlines }}Failing: {{ type.name }} {
     public func {{ method.name }} async throws {% if method.returnTypeName.name != "Void" %}-> {{ method.returnTypeName.name }} {% endif %}{
         XCTFail("\(#function) is not implemented.")
         {% if method.returnTypeName.name != "Void" %}
-        {% set defaultValue %} {% call resolveReturnValueForReturnType method.returnType %} {% endset %}
-        return {{ defaultValue|removeNewlines }}
+        {% set returnValue %} {% call resolveReturnValueForReturnType method %} {% endset %}
+        return {{ returnValue|removeNewlines }}
         {% endif %}
     }
     {% endfor %}
