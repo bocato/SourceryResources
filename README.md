@@ -270,6 +270,102 @@ public struct SomeServiceFailing: SomeServiceProtocol {
 #endif
 ```
 
+## AsyncAutoSpy
+Generates `Spy`s based on a dependency protocol, mostly applicable for datasources like services and repositories.
+NOTE: it assumes that all models returned have a `fixture` method previously defined.
+*Based on `Protocol Mock` template from `Łukasz Kuczborski`*
+### Input ⬅️
+```swift
+enum SomeEnum {
+    case firstCase
+    case secondCase
+}
+
+protocol SomethingRepositoryInterface {
+    init(input: String)
+    func fetchSomethingWithID(_ id: String) async throws -> Something
+    func fetchArrayOfSomething() async throws -> [Something]
+    func fetchArrayOfSomeEnum() async throws -> [SomeEnum]
+    func postSomething(stringParam: String, intParam: Int, somethingParam: Something) async throws
+}
+```
+
+### Output ➡️
+```swift
+
+// MARK: - SomethingRepositoryInterfaceSpy
+
+public final class  SomethingRepositoryInterfaceSpy: SomethingRepositoryInterface {
+    
+   // MARK: - init
+
+    public var initInputReceivedInput: String?
+    public var initInputReceivedInvocations: [String] = []
+    public var initInputClosure: ((String) -> Void)?
+
+    required init(input: String) {
+        initInputReceivedInput = input
+        initInputReceivedInvocations.append(input)
+        initInputClosure?(input)
+    }
+    
+   // MARK: - fetchSomethingWithID
+
+    public var fetchSomethingWithIDCallsCount = 0
+    public var fetchSomethingWithIDCalled: Bool {
+        fetchSomethingWithIDCallsCount > 0
+    }
+    public var fetchSomethingWithIDReceivedId: String?
+    public var fetchSomethingWithIDReceivedInvocations: [String] = []
+
+    public func fetchSomethingWithID(_ id: String) throws -> Something {
+        fetchSomethingWithIDCallsCount += 1
+        fetchSomethingWithIDReceivedId = id
+        fetchSomethingWithIDReceivedInvocations.append(id)
+        return .fixture()
+    }
+    
+   // MARK: - fetchArrayOfSomething
+
+    public var fetchArrayOfSomethingCallsCount = 0
+    public var fetchArrayOfSomethingCalled: Bool {
+        fetchArrayOfSomethingCallsCount > 0
+    }
+
+    public func fetchArrayOfSomething() throws -> [Something] {
+        fetchArrayOfSomethingCallsCount += 1
+        return .init()
+    }
+    
+   // MARK: - fetchArrayOfSomeEnum
+
+    public var fetchArrayOfSomeEnumCallsCount = 0
+    public var fetchArrayOfSomeEnumCalled: Bool {
+        fetchArrayOfSomeEnumCallsCount > 0
+    }
+
+    public func fetchArrayOfSomeEnum() throws -> [SomeEnum] {
+        fetchArrayOfSomeEnumCallsCount += 1
+        return .init()
+    }
+    
+   // MARK: - postSomething
+
+    public var postSomethingStringParamIntParamSomethingParamCallsCount = 0
+    public var postSomethingStringParamIntParamSomethingParamCalled: Bool {
+        postSomethingStringParamIntParamSomethingParamCallsCount > 0
+    }
+    public var postSomethingStringParamIntParamSomethingParamReceivedArguments: (stringParam: String, intParam: Int, somethingParam: Something)?
+    public var postSomethingStringParamIntParamSomethingParamReceivedInvocations: [(stringParam: String, intParam: Int, somethingParam: Something)] = []
+
+    public func postSomething(stringParam: String, intParam: Int, somethingParam: Something) throws {
+        postSomethingStringParamIntParamSomethingParamCallsCount += 1
+        postSomethingStringParamIntParamSomethingParamReceivedArguments = (stringParam: stringParam, intParam: intParam, somethingParam: somethingParam)
+        postSomethingStringParamIntParamSomethingParamReceivedInvocations.append((stringParam: stringParam, intParam: intParam, somethingParam: somethingParam))
+    }
+}
+```
+
 ## AsyncAutoSpyingStub
 Generates `Test Doubles` that serve as `Spy` and `Stub` based on a dependency protocol, mostly applicable for datasources like services and repositories.
 NOTE: it assumes that all models returned have a `fixture` method previously defined.
