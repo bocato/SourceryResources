@@ -249,3 +249,102 @@ public struct SomeServiceFailing: SomeServiceProtocol {
 }
 #endif
 ```
+
+## AsyncAutoSpyingStub
+Generates `Test Doubles` that serve as `Spy` and `Stub` based on a dependency protocol, mostly applicable for datasources like services and repositories.
+NOTE: it assumes that all models returned have a `fixture` method previously defined.
+*Based on `Protocol Mock` template from `Łukasz Kuczborski`*
+```swift
+// Input ⬅️
+enum SomeEnum {
+    case firstCase
+    case secondCase
+}
+
+protocol SomethingRepositoryInterface {
+    init(input: String)
+    func fetchSomethingWithID(_ id: String) async throws -> Something
+    func fetchArrayOfSomething() async throws -> [Something]
+    func fetchArrayOfSomeEnum() async throws -> [SomeEnum]
+    func postSomething(stringParam: String, intParam: Int, somethingParam: Something) async throws
+}
+
+// Output ➡️
+
+// MARK: - SomethingRepositoryInterfaceSpyingStub
+
+public final class  SomethingRepositoryInterfaceSpyingStub: SomethingRepositoryInterface {
+    
+   // MARK: - init
+
+    public var initInputResultToBeReturned: Result<SomethingRepositoryInterface, Error> = .success(.fixture())
+    public var initInputReceivedInput: String?
+    public var initInputReceivedInvocations: [String] = []
+    public var initInputClosure: ((String) -> Void)?
+
+    required init(input: String) {
+        initInputReceivedInput = input
+        initInputReceivedInvocations.append(input)
+        initInputClosure?(input)
+    }
+    
+   // MARK: - fetchSomethingWithID
+
+    public var fetchSomethingWithIDResultToBeReturned: Result<Something, Error> = .success(.fixture())
+    public var fetchSomethingWithIDCallsCount = 0
+    public var fetchSomethingWithIDCalled: Bool {
+        fetchSomethingWithIDCallsCount > 0
+    }
+    public var fetchSomethingWithIDReceivedId: String?
+    public var fetchSomethingWithIDReceivedInvocations: [String] = []
+
+    public func fetchSomethingWithID(_ id: String) throws -> Something {
+        fetchSomethingWithIDCallsCount += 1
+        fetchSomethingWithIDReceivedId = id
+        fetchSomethingWithIDReceivedInvocations.append(id)
+        return try fetchSomethingWithIDResultToBeReturned.get()
+    }
+    
+   // MARK: - fetchArrayOfSomething
+
+    public var fetchArrayOfSomethingResultToBeReturned: Result<[Something], Error> = .success(.init())
+    public var fetchArrayOfSomethingCallsCount = 0
+    public var fetchArrayOfSomethingCalled: Bool {
+        fetchArrayOfSomethingCallsCount > 0
+    }
+
+    public func fetchArrayOfSomething() throws -> [Something] {
+        fetchArrayOfSomethingCallsCount += 1
+        return try fetchArrayOfSomethingResultToBeReturned.get()
+    }
+    
+   // MARK: - fetchArrayOfSomeEnum
+
+    public var fetchArrayOfSomeEnumResultToBeReturned: Result<[SomeEnum], Error> = .success(.init())
+    public var fetchArrayOfSomeEnumCallsCount = 0
+    public var fetchArrayOfSomeEnumCalled: Bool {
+        fetchArrayOfSomeEnumCallsCount > 0
+    }
+
+    public func fetchArrayOfSomeEnum() throws -> [SomeEnum] {
+        fetchArrayOfSomeEnumCallsCount += 1
+        return try fetchArrayOfSomeEnumResultToBeReturned.get()
+    }
+    
+   // MARK: - postSomething
+
+    public var postSomethingStringParamIntParamSomethingParamResultToBeReturned: Result<Void, Error> = .success(.fixture())
+    public var postSomethingStringParamIntParamSomethingParamCallsCount = 0
+    public var postSomethingStringParamIntParamSomethingParamCalled: Bool {
+        postSomethingStringParamIntParamSomethingParamCallsCount > 0
+    }
+    public var postSomethingStringParamIntParamSomethingParamReceivedArguments: (stringParam: String, intParam: Int, somethingParam: Something)?
+    public var postSomethingStringParamIntParamSomethingParamReceivedInvocations: [(stringParam: String, intParam: Int, somethingParam: Something)] = []
+
+    public func postSomething(stringParam: String, intParam: Int, somethingParam: Something) throws {
+        postSomethingStringParamIntParamSomethingParamCallsCount += 1
+        postSomethingStringParamIntParamSomethingParamReceivedArguments = (stringParam: stringParam, intParam: intParam, somethingParam: somethingParam)
+        postSomethingStringParamIntParamSomethingParamReceivedInvocations.append((stringParam: stringParam, intParam: intParam, somethingParam: somethingParam))
+    }
+}
+```
