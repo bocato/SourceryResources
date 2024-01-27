@@ -225,7 +225,10 @@ protocol SomeServiceProtocol {
 ### Output ➡️
 ```swift
 #if DEBUG
+
 import XCTestDynamicOverlay
+
+// MARK: - SomeServiceProtocolFailing
 
 public struct SomeServiceFailing: SomeServiceProtocol {
     public init() {}
