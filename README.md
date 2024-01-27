@@ -297,6 +297,7 @@ protocol SomethingRepositoryInterface {
 
 ### Output ➡️
 ```swift
+#if DEBUG
 
 // MARK: - SomethingRepositoryInterfaceSpy
 
@@ -369,6 +370,7 @@ public final class  SomethingRepositoryInterfaceSpy: SomethingRepositoryInterfac
         postSomethingStringParamIntParamSomethingParamReceivedInvocations.append((stringParam: stringParam, intParam: intParam, somethingParam: somethingParam))
     }
 }
+#endif
 ```
 
 ## AsyncAutoSpyingStub

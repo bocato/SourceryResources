@@ -107,7 +107,7 @@
 
 
 {% for type in types.protocols %} {# Use types.implementing.AsyncAutoSpy instead of types.protocols if decided to have this protocol #}
-
+#if DEBUG
 {% newline %}// MARK: - {{ type.name }}Spy
 
 public final class  {{ type.name }}Spy: {{ type.name }} {
@@ -119,3 +119,4 @@ public final class  {{ type.name }}Spy: {{ type.name }} {
 {% endfor %}
 }
 {% endfor %}
+#endif
