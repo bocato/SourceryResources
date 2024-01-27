@@ -26,9 +26,10 @@
     {% endif %}
 {% endmacro %}
 
-
-{% for type in types.protocols %}
+{% for type in types.protocols %}{# Use types.implementing.AsyncAutoStub instead of types.protocols if decided to have this protocol #}
 #if DEBUG
+// MARK: - {{ type.name }}Spy
+
 {% set cleanTypeName %} {% call getCleanTypeName type.name %}  {% endset %}
 public final class {{ cleanTypeName|removeNewlines }}Stub: {{ type.name }} {
     public init() {}
