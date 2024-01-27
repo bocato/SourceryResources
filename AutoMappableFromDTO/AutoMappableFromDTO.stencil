@@ -1,0 +1,39 @@
+{% macro getArrayTypeName variable %}
+{% set cleanLeft %} {{ variable.typeName.name|replace: "]", ""}} {% endset %}
+{{ cleanLeft|replace: "[", ""}}
+{% endmacro %}
+
+{% for type in types.structs %}
+{% set foundationTypes %}
+    [
+        "Int", "UInt", "Float", "Double", "Bool", "String", "Character", 
+        "Optional", "Array", "Dictionary", "Set", "Date", "Data", "URL", 
+        "Range", "ClosedRange", "Error", "Any", "AnyObject", "Void"
+    ]
+{% endset %}
+    {% if not type.name|contains: "DTO" %}
+extension {{ type.name }} {
+    init(
+        dto: {{ type.name }}DTO
+        {% for variable in type.variables %}
+        {% if variable.typeName.name|contains:"[" and variable.typeName.name|contains:"]" %}
+        {% set cleanArrayType %} 
+        {% call getArrayTypeName variable %}
+        {% endset %}
+        map{{variable.name|upperFirstLetter}}EntityFromDTO: ([{{cleanArrayType|removeNewlines}}DTO]) -> {{ variable.typeName }}
+        {% endif %}
+        {% endfor %}
+    ) {
+        {% for variable in type.variables %}
+        {% if variable.typeName.name|contains:"[" and variable.typeName.name|contains:"]" %}
+        self.{{variable.name}} = map{{variable.name|upperFirstLetter}}EntityFromDTO(dto.{{variable.name}})
+        {% elif not foundationTypes|contains: variable.typeName %}
+        self.{{variable.name}} = .init(dto: dto.{{variable.name}})
+        {% else %}
+        self.{{variable.name}} = dto.{{variable.name}}
+        {% endif %}
+        {% endfor %}
+    }
+}
+    {% endif %}
+{% endfor %} 
