@@ -44,16 +44,16 @@ extension MyModel {
         aBool: Bool = false, 
         aString: String = "aString", 
         aCharacter: Character = "", 
-        anArray: Array = .init(), 
+        anArray: Array = .fixture(), 
         anArray2: [Int] = .init(), 
-        aDictionary: Dictionary = .init(), 
+        aDictionary: Dictionary = .fixture(), 
         aDictionary2: [String: String] = .init(), 
-        aSet: Set = .init(), 
+        aSet: Set = .fixture(), 
         aDate: Date = .distantFuture, 
         aData: Data = .init(), 
         anURL: URL = .init(), 
-        aSomething: Something = .init(), 
-        anEnum: MyEnum = .init()
+        aSomething: Something = .fixture(), 
+        anEnum: MyEnum = .firstCase
     ) -> Self {
         return .init(
             anInt: anInt, 
@@ -138,7 +138,7 @@ public final class SomeServiceStub: SomeServiceInterface {
 }
 #endif
 
-## 🚧🚧 AsyncAutoFailing **WIP** 🚧🚧
+## AsyncAutoFailing
 Creates a `Failing` based on a dependency protocol.
 NOTE: it assumes that all models returned have a `fixture` method previously defined.
 ```swift
@@ -154,6 +154,8 @@ protocol SomeServiceProtocol {
     func getDate() async throws -> Date
     func getData() async throws -> Data
     func getURL() async throws -> URL
+    func getArray() async throws -> [String]
+    func getDictionary() async throws -> [String: String]
     func postSomething() async throws
 }
 
@@ -166,27 +168,37 @@ public struct SomeServiceFailing: SomeServiceProtocol {
 
     public func getSomething(_ id: String) async throws -> Something {
         XCTFail("\(#function) is not implemented.")
-        return .fixture()
+        return .init()
     }
 
     public func getEnum() async throws -> MyEnum {
         XCTFail("\(#function) is not implemented.")
-        return .firstCase
+        return .init()
     }
 
     public func getDate() async throws -> Date {
         XCTFail("\(#function) is not implemented.")
-        return .fixture()
+        return .init()
     }
 
     public func getData() async throws -> Data {
         XCTFail("\(#function) is not implemented.")
-        return .fixture()
+        return .init()
     }
 
     public func getURL() async throws -> URL {
         XCTFail("\(#function) is not implemented.")
-        return .fixture()
+        return .init()
+    }
+
+    public func getArray() async throws -> [String] {
+        XCTFail("\(#function) is not implemented.")
+        return .init()
+    }
+
+    public func getDictionary() async throws -> [String: String] {
+        XCTFail("\(#function) is not implemented.")
+        return .init()
     }
 
     public func postSomething() async throws {
