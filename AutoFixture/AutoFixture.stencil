@@ -28,7 +28,6 @@
 {% endmacro %}
 
 {% for type in types.structs %}{# Use types.implementing.AutoFixture instead of types.structs if decided to have this protocol #}
-#if DEBUG
 extension {{ type.name }} {
     static func fixture(
         {% for variable in type.storedVariables %}
@@ -43,5 +42,4 @@ extension {{ type.name }} {
         )
     }
 }
-#endif
 {% endfor %}

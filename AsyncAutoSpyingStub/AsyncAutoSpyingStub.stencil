@@ -111,9 +111,7 @@
     private var {% call underlyingMockedVariableName variable %}: {{ variable.typeName }}!
 {% endmacro %}
 
-
 {% for type in types.protocols %}{# Use types.implementing.AsyncAutoSpyingStub instead of types.protocols if decided to have this protocol #}
-#if DEBUG
 {% newline %}// MARK: - {{ type.name }}SpyingStub
 
 public final class  {{ type.name }}SpyingStub: {{ type.name }} {

@@ -1,63 +1,50 @@
-#if DEBUG
-// MARK: - SomeServiceProtocolStub
+{% macro getCleanTypeName typeName %}
+    {% if typeName|contains: "Interface" %}
+        {{ typeName|replace: "Interface", ""}}
+    {% elif typeName|contains: "Protocol" %}
+        {{ typeName|replace: "Protocol", ""}}
+    {% endif %}
+{% endmacro %}
 
-public final class SomeServiceStub: SomeServiceProtocol {
+{% macro resolveReturnValueForReturnType method %}
+{% typed method as Method %}
+    {% set foundationTypesWithNoFixture %} 
+    [
+        "Date", "Data", "URL"
+    ]
+    {% endset %}
+    {% if method.returnType.kind == "enum" %}
+        .{{ method.returnType.cases.first.name }}
+    {% elif foundationTypesWithNoFixture|contains: method.returnTypeName %}
+        .init()
+    {% else %}
+        {% if method.returnTypeName|contains:"[" and method.returnTypeName|contains:"]" %}
+            .init()
+        {% else %}
+            .fixture()
+        {% endif %}
+    {% endif %}
+{% endmacro %}
+
+{% for type in types.protocols %}{# Use types.implementing.AsyncAutoStub instead of types.protocols if decided to have this protocol #}
+// MARK: - {{ type.name }}Stub
+
+{% set cleanTypeName %} {% call getCleanTypeName type.name %}  {% endset %}
+public final class {{ cleanTypeName|removeNewlines }}Stub: {{ type.name }} {
     public init() {}
+    {% for method in type.allMethods %}
 
-    // MARK: - getSomething
+    // MARK: - {{ method.shortName }}
 
-    public var getSomethingResultToBeReturned: Result<Something, Error> = .success(.fixture())
-    public func getSomething(_ id: String) async throws -> Something {
-        try getSomethingResultToBeReturned.get()
+    {% if method.returnTypeName.name != "Void" %}
+    {% set returnValue %} {% call resolveReturnValueForReturnType method %} {% endset %}
+    public var {{ method.shortName }}ResultToBeReturned: Result<{{ method.returnTypeName.name }}, Error> = .success({{ returnValue|removeNewlines }})
+    {% else %}
+    public var {{ method.shortName }}ResultToBeReturned: Result<Void, Error> = .success(())
+    {% endif %}
+    public func {{ method.name }} async throws {% if method.returnTypeName.name != "Void" %}-> {{ method.returnTypeName.name }} {% endif %}{
+        try {{ method.shortName }}ResultToBeReturned.get()
     }
-
-    // MARK: - getEnum
-
-    public var getEnumResultToBeReturned: Result<MyEnum, Error> = .success(.firstCase)
-    public func getEnum() async throws -> MyEnum {
-        try getEnumResultToBeReturned.get()
-    }
-
-    // MARK: - getDate
-
-    public var getDateResultToBeReturned: Result<Date, Error> = .success(.init())
-    public func getDate() async throws -> Date {
-        try getDateResultToBeReturned.get()
-    }
-
-    // MARK: - getData
-
-    public var getDataResultToBeReturned: Result<Data, Error> = .success(.init())
-    public func getData() async throws -> Data {
-        try getDataResultToBeReturned.get()
-    }
-
-    // MARK: - getURL
-
-    public var getURLResultToBeReturned: Result<URL, Error> = .success(.init())
-    public func getURL() async throws -> URL {
-        try getURLResultToBeReturned.get()
-    }
-
-    // MARK: - getArray
-
-    public var getArrayResultToBeReturned: Result<[String], Error> = .success(.init())
-    public func getArray() async throws -> [String] {
-        try getArrayResultToBeReturned.get()
-    }
-
-    // MARK: - getDictionary
-
-    public var getDictionaryResultToBeReturned: Result<[String: String], Error> = .success(.init())
-    public func getDictionary() async throws -> [String: String] {
-        try getDictionaryResultToBeReturned.get()
-    }
-
-    // MARK: - postSomething
-
-    public var postSomethingResultToBeReturned: Result<Void, Error> = .success(())
-    public func postSomething() async throws {
-        try postSomethingResultToBeReturned.get()
-    }
+    {% endfor %}
 }
-#endif
+{% endfor %}

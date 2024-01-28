@@ -5,17 +5,19 @@ Place to hold stencil templates to be used in Sourcery.
 ## Available Templates
 
 ### AutoMappableFromDTO
+
 Creates the initializer for class that have a DTO in order to map from DTO to Domain entity.
+
 ```swift
 // Input ⬅️
-struct RoundDTO: Decodable {
+struct MyObjectDTO: Decodable {
     let id: String
     let position: Int
     let status: RoundStatusDTO
     let groups: [RoundGroupDTO]
 }
 
-struct Round: Equatable, Identifiable, AutoMappableFromDTO {
+struct MyObject: Equatable, Identifiable, AutoMappableFromDTO {
     let id: String
     let position: Int
     let status: RoundStatus
@@ -23,21 +25,20 @@ struct Round: Equatable, Identifiable, AutoMappableFromDTO {
 }
 
 // Output ➡️
-extension Round {
-    init(
-        dto: RoundDTO
-        mapGroupsEntityFromDTO: ([RoundGroupDTO]) -> [RoundGroup]
-    ) {
+extension MyObject {
+    init(dto: MyObjectDTO) {
         self.id = dto.id
         self.position = dto.position
         self.status = .init(dto: dto.status)
-        self.groups = mapGroupsEntityFromDTO(dto.groups)
+        self.groups = .init(dto: dto.groups)
     }
 }
 ```
 
 ### AutoFixture
+
 Creates special initializer `fixture` to simplify testing when mocking objects.
+
 ```swift
 // Input ⬅️
 enum MyEnum {
@@ -66,44 +67,44 @@ struct MyModel: AutoFixture {
 }
 
 // Output ➡️
-#if DEBUG
+
 extension MyModel {
     static func fixture(
-        anInt: Int = 0, 
-        anUInt: UInt = 0, 
-        aFloat: Float = 0, 
-        aDouble: Double = 0, 
-        aBool: Bool = false, 
-        aString: String = "aString", 
-        aCharacter: Character = "", 
-        anArray: Array = .fixture(), 
-        anArray2: [Int] = .init(), 
-        aDictionary: Dictionary = .fixture(), 
-        aDictionary2: [String: String] = .init(), 
-        aSet: Set = .fixture(), 
-        aDate: Date = .distantFuture, 
-        aData: Data = .init(), 
-        anURL: URL = .init(), 
-        aSomething: Something = .fixture(), 
+        anInt: Int = 0,
+        anUInt: UInt = 0,
+        aFloat: Float = 0,
+        aDouble: Double = 0,
+        aBool: Bool = false,
+        aString: String = "aString",
+        aCharacter: Character = "",
+        anArray: Array = .fixture(),
+        anArray2: [Int] = .init(),
+        aDictionary: Dictionary = .fixture(),
+        aDictionary2: [String: String] = .init(),
+        aSet: Set = .fixture(),
+        aDate: Date = .distantFuture,
+        aData: Data = .init(),
+        anURL: URL = .init(),
+        aSomething: Something = .fixture(),
         anEnum: MyEnum = .firstCase
     ) -> Self {
         return .init(
-            anInt: anInt, 
-            anUInt: anUInt, 
-            aFloat: aFloat, 
-            aDouble: aDouble, 
-            aBool: aBool, 
-            aString: aString, 
-            aCharacter: aCharacter, 
-            anArray: anArray, 
-            anArray2: anArray2, 
-            aDictionary: aDictionary, 
-            aDictionary2: aDictionary2, 
-            aSet: aSet, 
-            aDate: aDate, 
-            aData: aData, 
-            anURL: anURL, 
-            aSomething: aSomething, 
+            anInt: anInt,
+            anUInt: anUInt,
+            aFloat: aFloat,
+            aDouble: aDouble,
+            aBool: aBool,
+            aString: aString,
+            aCharacter: aCharacter,
+            anArray: anArray,
+            anArray2: anArray2,
+            aDictionary: aDictionary,
+            aDictionary2: aDictionary2,
+            aSet: aSet,
+            aDate: aDate,
+            aData: aData,
+            anURL: anURL,
+            aSomething: aSomething,
             anEnum: anEnum
         )
     }
@@ -112,9 +113,12 @@ extension MyModel {
 ```
 
 ## AsyncAutoStub
+
 Creates a `Stub` based on a dependency protocol, mostly applicable for datasources like services and repositories.
 NOTE: it assumes that all models returned have a `fixture` method previously defined.
+
 ### Input ⬅️
+
 ```swift
 enum MyEnum {
     case firstCase
@@ -134,8 +138,9 @@ protocol SomeServiceProtocol {
 ```
 
 ### Output ➡️
+
 ```swift
-#if DEBUG
+
 // MARK: - SomeServiceProtocolStub
 
 public final class SomeServiceStub: SomeServiceProtocol {
@@ -201,9 +206,12 @@ public final class SomeServiceStub: SomeServiceProtocol {
 ```
 
 ## AsyncAutoFailing
+
 Creates a `Failing` based on a dependency protocol.
 NOTE: it assumes that all models returned have a `fixture` method previously defined.
+
 ### Input ⬅️
+
 ```swift
 enum MyEnum {
     case firstCase
@@ -223,8 +231,8 @@ protocol SomeServiceProtocol {
 ```
 
 ### Output ➡️
+
 ```swift
-#if DEBUG
 
 import XCTestDynamicOverlay
 
@@ -276,10 +284,13 @@ public struct SomeServiceFailing: SomeServiceProtocol {
 ```
 
 ## AsyncAutoSpy
+
 Generates `Spy`s based on a dependency protocol, mostly applicable for datasources like services and repositories.
 NOTE: it assumes that all models returned have a `fixture` method previously defined.
-*Based on `Protocol Mock` template from `Łukasz Kuczborski`*
+_Based on `Protocol Mock` template from `Łukasz Kuczborski`_
+
 ### Input ⬅️
+
 ```swift
 enum SomeEnum {
     case firstCase
@@ -296,13 +307,13 @@ protocol SomethingRepositoryInterface {
 ```
 
 ### Output ➡️
+
 ```swift
-#if DEBUG
 
 // MARK: - SomethingRepositoryInterfaceSpy
 
 public final class  SomethingRepositoryInterfaceSpy: SomethingRepositoryInterface {
-    
+
    // MARK: - init
 
     public var initInputReceivedInput: String?
@@ -314,7 +325,7 @@ public final class  SomethingRepositoryInterfaceSpy: SomethingRepositoryInterfac
         initInputReceivedInvocations.append(input)
         initInputClosure?(input)
     }
-    
+
    // MARK: - fetchSomethingWithID
 
     public var fetchSomethingWithIDCallsCount = 0
@@ -330,7 +341,7 @@ public final class  SomethingRepositoryInterfaceSpy: SomethingRepositoryInterfac
         fetchSomethingWithIDReceivedInvocations.append(id)
         return .fixture()
     }
-    
+
    // MARK: - fetchArrayOfSomething
 
     public var fetchArrayOfSomethingCallsCount = 0
@@ -342,7 +353,7 @@ public final class  SomethingRepositoryInterfaceSpy: SomethingRepositoryInterfac
         fetchArrayOfSomethingCallsCount += 1
         return .init()
     }
-    
+
    // MARK: - fetchArrayOfSomeEnum
 
     public var fetchArrayOfSomeEnumCallsCount = 0
@@ -354,7 +365,7 @@ public final class  SomethingRepositoryInterfaceSpy: SomethingRepositoryInterfac
         fetchArrayOfSomeEnumCallsCount += 1
         return .init()
     }
-    
+
    // MARK: - postSomething
 
     public var postSomethingStringParamIntParamSomethingParamCallsCount = 0
@@ -374,10 +385,13 @@ public final class  SomethingRepositoryInterfaceSpy: SomethingRepositoryInterfac
 ```
 
 ## AsyncAutoSpyingStub
+
 Generates `Test Doubles` that serve as `Spy` and `Stub` based on a dependency protocol, mostly applicable for datasources like services and repositories.
 NOTE: it assumes that all models returned have a `fixture` method previously defined.
-*Based on `Protocol Mock` template from `Łukasz Kuczborski``
+\*Based on `Protocol Mock` template from `Łukasz Kuczborski``
+
 ### Input ⬅️
+
 ```swift
 enum SomeEnum {
     case firstCase
@@ -394,13 +408,13 @@ protocol SomethingRepositoryInterface {
 ```
 
 ### Output ➡️
+
 ```swift
-#if DEBUG
 
 // MARK: - SomethingRepositoryInterfaceSpyingStub
 
 public final class  SomethingRepositoryInterfaceSpyingStub: SomethingRepositoryInterface {
-    
+
    // MARK: - init
 
     public var initInputResultToBeReturned: Result<SomethingRepositoryInterface, Error> = .success(.fixture())
@@ -413,7 +427,7 @@ public final class  SomethingRepositoryInterfaceSpyingStub: SomethingRepositoryI
         initInputReceivedInvocations.append(input)
         initInputClosure?(input)
     }
-    
+
    // MARK: - fetchSomethingWithID
 
     public var fetchSomethingWithIDResultToBeReturned: Result<Something, Error> = .success(.fixture())
@@ -430,7 +444,7 @@ public final class  SomethingRepositoryInterfaceSpyingStub: SomethingRepositoryI
         fetchSomethingWithIDReceivedInvocations.append(id)
         return try fetchSomethingWithIDResultToBeReturned.get()
     }
-    
+
    // MARK: - fetchArrayOfSomething
 
     public var fetchArrayOfSomethingResultToBeReturned: Result<[Something], Error> = .success(.init())
@@ -443,7 +457,7 @@ public final class  SomethingRepositoryInterfaceSpyingStub: SomethingRepositoryI
         fetchArrayOfSomethingCallsCount += 1
         return try fetchArrayOfSomethingResultToBeReturned.get()
     }
-    
+
    // MARK: - fetchArrayOfSomeEnum
 
     public var fetchArrayOfSomeEnumResultToBeReturned: Result<[SomeEnum], Error> = .success(.init())
@@ -456,7 +470,7 @@ public final class  SomethingRepositoryInterfaceSpyingStub: SomethingRepositoryI
         fetchArrayOfSomeEnumCallsCount += 1
         return try fetchArrayOfSomeEnumResultToBeReturned.get()
     }
-    
+
    // MARK: - postSomething
 
     public var postSomethingStringParamIntParamSomethingParamResultToBeReturned: Result<Void, Error> = .success(.fixture())

@@ -15,7 +15,7 @@
     {% if method.returnType.kind == "enum" %}
         .{{ method.returnType.cases.first.name }}
     {% elif foundationTypesWithNoFixture|contains: method.returnTypeName %}
-        .init()
+        .init()x
     {% else %}
         {% if method.returnTypeName|contains:"[" and method.returnTypeName|contains:"]" %}
             .init()
@@ -26,8 +26,7 @@
 {% endmacro %}
 
 {% for type in types.protocols %}{# Use types.implementing.AsyncAutoFailing instead of types.protocols if decided to have this protocol #}
-#if DEBUG
-
+{% newline %}
 import XCTestDynamicOverlay
 
 // MARK: - {{ type.name }}Failing
