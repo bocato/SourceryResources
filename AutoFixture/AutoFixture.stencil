@@ -28,7 +28,7 @@
 {% endmacro %}
 
 {% for type in types.structs %}{# Use types.implementing.AutoFixture instead of types.structs if decided to have this protocol #}
-extension {{ type.name }} {
+{{ type.accessLevel }} extension {{ type.name }} {
     static func fixture(
         {% for variable in type.storedVariables %}
         {% set defaultValue %} {% call defaultValueForType variable %} {% endset %}

@@ -12,7 +12,7 @@
     ]
 {% endset %}
     {% if not type.name|contains: "DTO" %}
-extension {{ type.name }} {
+{{ type.accessLevel }} extension {{ type.name }} {
     init(
         dto: {{ type.name }}DTO
         {% for variable in type.variables %}

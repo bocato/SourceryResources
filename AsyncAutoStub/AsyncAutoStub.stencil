@@ -30,19 +30,19 @@
 // MARK: - {{ type.name }}Stub
 
 {% set cleanTypeName %} {% call getCleanTypeName type.name %}  {% endset %}
-public final class {{ cleanTypeName|removeNewlines }}Stub: {{ type.name }} {
-    public init() {}
+{{ type.accessLevel }} final class {{ cleanTypeName|removeNewlines }}Stub: {{ type.name }} {
+    {{ type.accessLevel }} init() {}
     {% for method in type.allMethods %}
 
     // MARK: - {{ method.shortName }}
 
     {% if method.returnTypeName.name != "Void" %}
     {% set returnValue %} {% call resolveReturnValueForReturnType method %} {% endset %}
-    public var {{ method.shortName }}ResultToBeReturned: Result<{{ method.returnTypeName.name }}, Error> = .success({{ returnValue|removeNewlines }})
+    {{ type.accessLevel }} var {{ method.shortName }}ResultToBeReturned: Result<{{ method.returnTypeName.name }}, Error> = .success({{ returnValue|removeNewlines }})
     {% else %}
-    public var {{ method.shortName }}ResultToBeReturned: Result<Void, Error> = .success(())
+    {{ type.accessLevel }} var {{ method.shortName }}ResultToBeReturned: Result<Void, Error> = .success(())
     {% endif %}
-    public func {{ method.name }} async throws {% if method.returnTypeName.name != "Void" %}-> {{ method.returnTypeName.name }} {% endif %}{
+    {{ type.accessLevel }} func {{ method.name }} async throws {% if method.returnTypeName.name != "Void" %}-> {{ method.returnTypeName.name }} {% endif %}{
         try {{ method.shortName }}ResultToBeReturned.get()
     }
     {% endfor %}

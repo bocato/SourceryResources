@@ -1,3 +1,11 @@
+{% macro getCleanTypeName typeName %}
+    {% if typeName|contains: "Interface" %}
+        {{ typeName|replace: "Interface", ""}}
+    {% elif typeName|contains: "Protocol" %}
+        {{ typeName|replace: "Protocol", ""}}
+    {% endif %}
+{% endmacro %}
+
 {% macro swiftifyMethodName name %}{% typed name as String %}{{ name | replace:"(","_" | replace:")","" | replace:":","_" | replace:"`","" | snakeToCamelCase | lowerFirstWord }}{% endmacro %}
 
 {% macro resolveReturnValueForReturnType method %}
@@ -39,7 +47,7 @@
 {% macro methodClosureDeclaration method %}
 {% typed method as Method %}
 {% if method.isInitializer %}
-    public var {% call methodClosureName method %}: (({% for param in method.parameters %}{{ param.typeName }}{% if not forloop.last %}, {% endif %}{% endfor %}) {% if method.throws %}throws {% endif %}-> {% if method.isInitializer %}Void{% else %}{% call closureReturnTypeName method %}{% endif %})?
+    {{ type.accessLevel }} var {% call methodClosureName method %}: (({% for param in method.parameters %}{{ param.typeName }}{% if not forloop.last %}, {% endif %}{% endfor %}) {% if method.throws %}throws {% endif %}-> {% if method.isInitializer %}Void{% else %}{% call closureReturnTypeName method %}{% endif %})?
 {% endif %}
 {% endmacro %}
 
@@ -50,17 +58,17 @@
     {% newline %}   // MARK: - {{ method.shortName }}
 
     {% if not method.isInitializer %}
-    public var {% call swiftifyMethodName method.selectorName %}CallsCount = 0
-    public var {% call swiftifyMethodName method.selectorName %}Called: Bool {
+    {{ type.accessLevel }} var {% call swiftifyMethodName method.selectorName %}CallsCount = 0
+    {{ type.accessLevel }} var {% call swiftifyMethodName method.selectorName %}Called: Bool {
         {% call swiftifyMethodName method.selectorName %}CallsCount > 0
     }
     {% endif %}
     {% if method.parameters.count == 1 %}
-    public var {% call swiftifyMethodName method.selectorName %}Received{% for param in method.parameters %}{{ param.name|upperFirstLetter }}: {{ '(' if param.isClosure }}{{ param.typeName.unwrappedTypeName }}{{ ')' if param.isClosure }}?{% endfor %}
-    public var {% call swiftifyMethodName method.selectorName %}ReceivedInvocations{% for param in method.parameters %}: [{{ '(' if param.isClosure }}{{ param.typeName.unwrappedTypeName }}{{ ')' if param.isClosure }}{%if param.typeName.isOptional%}?{%endif%}]{% endfor %} = []
+    {{ type.accessLevel }} var {% call swiftifyMethodName method.selectorName %}Received{% for param in method.parameters %}{{ param.name|upperFirstLetter }}: {{ '(' if param.isClosure }}{{ param.typeName.unwrappedTypeName }}{{ ')' if param.isClosure }}?{% endfor %}
+    {{ type.accessLevel }} var {% call swiftifyMethodName method.selectorName %}ReceivedInvocations{% for param in method.parameters %}: [{{ '(' if param.isClosure }}{{ param.typeName.unwrappedTypeName }}{{ ')' if param.isClosure }}{%if param.typeName.isOptional%}?{%endif%}]{% endfor %} = []
     {% elif not method.parameters.count == 0 %}
-    public var {% call swiftifyMethodName method.selectorName %}ReceivedArguments: ({% for param in method.parameters %}{{ param.name }}: {{ param.unwrappedTypeName if param.typeAttributes.escaping else param.typeName }}{{ ', ' if not forloop.last }}{% endfor %})?
-    public var {% call swiftifyMethodName method.selectorName %}ReceivedInvocations: [({% for param in method.parameters %}{{ param.name }}: {{ param.unwrappedTypeName if param.typeAttributes.escaping else param.typeName }}{{ ', ' if not forloop.last }}{% endfor %})] = []
+    {{ type.accessLevel }} var {% call swiftifyMethodName method.selectorName %}ReceivedArguments: ({% for param in method.parameters %}{{ param.name }}: {{ param.unwrappedTypeName if param.typeAttributes.escaping else param.typeName }}{{ ', ' if not forloop.last }}{% endfor %})?
+    {{ type.accessLevel }} var {% call swiftifyMethodName method.selectorName %}ReceivedInvocations: [({% for param in method.parameters %}{{ param.name }}: {{ param.unwrappedTypeName if param.typeAttributes.escaping else param.typeName }}{{ ', ' if not forloop.last }}{% endfor %})] = []
     {% endif %}
     {% call methodClosureDeclaration method %}
 
@@ -70,7 +78,7 @@
         {% call methodClosureName method %}?({% call methodClosureCallParameters method %})
     }
 {% else %}
-    public func {{ method.name }}{{ ' throws' if method.throws }}{% if not method.returnTypeName.isVoid %} -> {{ method.returnTypeName }}{% endif %} {
+    {{ type.accessLevel }} func {{ method.name }}{{ ' throws' if method.throws }}{% if not method.returnTypeName.isVoid %} -> {{ method.returnTypeName }}{% endif %} {
         {% call swiftifyMethodName method.selectorName %}CallsCount += 1
         {% call methodReceivedParameters method %}
         {% if not method.returnTypeName.isVoid %}
@@ -86,19 +94,19 @@
 
 {% macro mockOptionalVariable variable %}
 {% typed variable as Variable %}
-    public var {% call mockedVariableName variable %}: {{ variable.typeName }}
+    {{ type.accessLevel }} var {% call mockedVariableName variable %}: {{ variable.typeName }}
 {% endmacro %}
 
 {% macro mockNonOptionalArrayOrDictionaryVariable variable %}
 {% typed variable as Variable %}
-    public var {% call mockedVariableName variable %}: {{ variable.typeName }} = {% if variable.isArray %}[]{% elif variable.isDictionary %}[:]{% endif %}
+    {{ type.accessLevel }} var {% call mockedVariableName variable %}: {{ variable.typeName }} = {% if variable.isArray %}[]{% elif variable.isDictionary %}[:]{% endif %}
 {% endmacro %}
 
 {% macro mockNonOptionalVariable variable %}
     {% typed variable as Variable %}
     {% newline %}   // MARK: - {{ variable.name }}
 
-    public var {% call mockedVariableName variable %}: {{ variable.typeName }} {
+    {{ type.accessLevel }} var {% call mockedVariableName variable %}: {{ variable.typeName }} {
         get { {% call underlyingMockedVariableName variable %} }
         set(value) { {% call underlyingMockedVariableName variable %} = value }
     }
@@ -109,8 +117,10 @@
 {% for type in types.protocols %} {# Use types.implementing.AsyncAutoSpy instead of types.protocols if decided to have this protocol #}
 
 {% newline %}// MARK: - {{ type.name }}Spy
+{% set cleanTypeName %} {% call getCleanTypeName type.name %}  {% endset %}
+{{ type.accessLevel }} final class {{ cleanTypeName|removeNewlines }}Spy: {{ type.name }} {
 
-public final class  {{ type.name }}Spy: {{ type.name }} {
+    {{ type.accessLevel }} init() {}
 {% for variable in type.allVariables|!definedInExtension %}
     {% if variable.isOptional %}{% call mockOptionalVariable variable %}{% elif variable.isArray or variable.isDictionary %}{% call mockNonOptionalArrayOrDictionaryVariable variable %}{% else %}{% call mockNonOptionalVariable variable %}{% endif %}
 {% endfor %}

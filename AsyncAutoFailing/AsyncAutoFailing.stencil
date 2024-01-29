@@ -15,7 +15,7 @@
     {% if method.returnType.kind == "enum" %}
         .{{ method.returnType.cases.first.name }}
     {% elif foundationTypesWithNoFixture|contains: method.returnTypeName %}
-        .init()x
+        .init()
     {% else %}
         {% if method.returnTypeName|contains:"[" and method.returnTypeName|contains:"]" %}
             .init()
@@ -26,17 +26,16 @@
 {% endmacro %}
 
 {% for type in types.protocols %}{# Use types.implementing.AsyncAutoFailing instead of types.protocols if decided to have this protocol #}
-{% newline %}
-import XCTestDynamicOverlay
+{% newline %}import XCTestDynamicOverlay
 
 // MARK: - {{ type.name }}Failing
 
 {% set cleanTypeName %} {% call getCleanTypeName type.name %}  {% endset %}
-public struct {{ cleanTypeName|removeNewlines }}Failing: {{ type.name }} {
-    public init() {}
+{{ type.accessLevel }} struct {{ cleanTypeName|removeNewlines }}Failing: {{ type.name }} {
+    {{ type.accessLevel }} init() {}
     {% for method in type.allMethods %}
 
-    public func {{ method.name }} async throws {% if method.returnTypeName.name != "Void" %}-> {{ method.returnTypeName.name }} {% endif %}{
+    {{ type.accessLevel }} func {{ method.name }} async throws {% if method.returnTypeName.name != "Void" %}-> {{ method.returnTypeName.name }} {% endif %}{
         XCTFail("\(#function) is not implemented.")
         {% if method.returnTypeName.name != "Void" %}
         {% set returnValue %} {% call resolveReturnValueForReturnType method %} {% endset %}
@@ -45,6 +44,4 @@ public struct {{ cleanTypeName|removeNewlines }}Failing: {{ type.name }} {
     }
     {% endfor %}
 }
-#endif
-
 {% endfor %}
