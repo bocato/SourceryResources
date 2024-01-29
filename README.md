@@ -473,7 +473,7 @@ internal final class  SomethingRepositorySpyingStub: SomethingRepositoryInterfac
     
    // MARK: - postSomething
 
-    internal var postSomethingStringParamIntParamSomethingParamResultToBeReturned: Result<Void, Error> = .success(.fixture())
+    internal var postSomethingStringParamIntParamSomethingParamResultToBeReturned: Result<Void, Error> = .success(())
     internal var postSomethingStringParamIntParamSomethingParamCallsCount = 0
     internal var postSomethingStringParamIntParamSomethingParamCalled: Bool {
         postSomethingStringParamIntParamSomethingParamCallsCount > 0
