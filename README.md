@@ -10,30 +10,45 @@ Creates the initializer for class that have a DTO in order to map from DTO to Do
 
 ```swift
 // Input ⬅️
-struct MyObjectDTO: Decodable {
-    let id: String
-    let position: Int
-    let status: RoundStatusDTO
-    let groups: [RoundGroupDTO]
+import Foundation
+
+enum Status {
+    case idle
+    case completed
 }
 
-struct MyObject: Equatable, Identifiable, AutoMappableFromDTO {
+struct ListItem {
+    let value: String
+}
+
+struct MyObject {
     let id: String
-    let position: Int
-    let status: RoundStatus
-    let groups: [RoundGroup]
+    let intValue: Int
+    let status: Status
+    let stringList: [String]
+    let itemsList: [ListItem]
 }
 
 // Output ➡️
+internal extension ListItem {
+    init(
+        dto: ListItemDTO
+    ) {
+        self.value = dto.value
+    }
+}
+
 internal extension MyObject {
     init(
         dto: MyObjectDTO
-        mapGroupsEntityFromDTO: ([RoundGroupDTO]) -> [RoundGroup]
+        mapStringListFromDTO: ([String]) -> [String]
+        mapItemsListEntityFromDTO: ([ListItemDTO]) -> [ListItem]
     ) {
         self.id = dto.id
-        self.position = dto.position
+        self.intValue = dto.intValue
         self.status = .init(dto: dto.status)
-        self.groups = mapGroupsEntityFromDTO(dto.groups)
+        self.stringList = mapStringListFromDTO(dto.stringList)
+        self.itemsList = mapItemsListFromDTO(dto.itemsList)
     }
 }
 ```

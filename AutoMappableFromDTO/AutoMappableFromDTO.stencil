@@ -11,22 +11,29 @@
         "Range", "ClosedRange", "Error", "Any", "AnyObject", "Void"
     ]
 {% endset %}
-    {% if not type.name|contains: "DTO" %}
+{% if not type.name|contains: "DTO" %}
 {{ type.accessLevel }} extension {{ type.name }} {
     init(
         dto: {{ type.name }}DTO
         {% for variable in type.variables %}
         {% if variable.typeName.name|contains:"[" and variable.typeName.name|contains:"]" %}
-        {% set cleanArrayType %} 
-        {% call getArrayTypeName variable %}
-        {% endset %}
-        map{{variable.name|upperFirstLetter}}EntityFromDTO: ([{{cleanArrayType|removeNewlines}}DTO]) -> {{ variable.typeName }}
+        {% set cleanArrayTypeReturn %} {% call getArrayTypeName variable %} {% endset %}
+        {% set cleanArrayType %}{{ cleanArrayTypeReturn|removeNewlines }}{% endset %}
+        {% if foundationTypes|contains:cleanArrayType %}
+        map{{variable.name|upperFirstLetter}}FromDTO: ([{{cleanArrayType}}]) -> {{ variable.typeName }}
+        {% else %}
+        map{{variable.name|upperFirstLetter}}EntityFromDTO: ([{{cleanArrayType}}DTO]) -> {{ variable.typeName }}
+        {% endif %}
         {% endif %}
         {% endfor %}
     ) {
         {% for variable in type.variables %}
         {% if variable.typeName.name|contains:"[" and variable.typeName.name|contains:"]" %}
+        {% if value %}
         self.{{variable.name}} = map{{variable.name|upperFirstLetter}}EntityFromDTO(dto.{{variable.name}})
+        {% else %}
+        self.{{variable.name}} = map{{variable.name|upperFirstLetter}}FromDTO(dto.{{variable.name}})
+        {% endif %}
         {% elif not foundationTypes|contains: variable.typeName %}
         self.{{variable.name}} = .init(dto: dto.{{variable.name}})
         {% else %}
@@ -34,6 +41,6 @@
         {% endif %}
         {% endfor %}
     }
-}
-    {% endif %}
-{% endfor %} 
+}{% newline %}
+{% endif %}
+{% endfor %}

@@ -1,13 +1,18 @@
-struct RoundDTO: Decodable {
-    let id: String
-    let position: Int
-    let status: RoundStatusDTO
-    let groups: [RoundGroupDTO]
+import Foundation
+
+enum Status {
+    case idle
+    case completed
 }
 
-struct Round: Equatable, Identifiable, AutoMappableFromDTO {
+struct ListItem {
+    let value: String
+}
+
+struct MyObject {
     let id: String
-    let position: Int
-    let status: RoundStatus
-    let groups: [RoundGroup]
+    let intValue: Int
+    let status: Status
+    let stringList: [String]
+    let itemsList: [ListItem]
 }
