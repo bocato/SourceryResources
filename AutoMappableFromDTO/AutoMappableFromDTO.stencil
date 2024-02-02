@@ -47,7 +47,7 @@
 
 {% for type in types.enums where type.cases.count > 0 %}
 {{type.accessLevel}} extension {{type.name}} {
-    init(dto: {{ type.name }}DTO)
+    init(dto: {{ type.name }}DTO) {
         switch dto {
         {% for p in type.cases %}
         case .{{p.name}}: self = .{{p.name}}

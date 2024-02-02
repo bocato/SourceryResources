@@ -48,7 +48,7 @@ internal extension MyObject {
 }
 
 internal extension Status {
-    init(dto: StatusDTO)
+    init(dto: StatusDTO) {
         switch dto {
         case .idle: self = .idle
         case .completed: self = .completed
