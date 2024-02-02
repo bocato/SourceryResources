@@ -9,7 +9,7 @@
 {% macro resolveReturnValueForReturnType method %}
     {% set foundationTypesWithNoFixture %} 
     [
-        "Date", "Data", "URL"
+        "Date", "Data"
     ]
     {% endset %}
     {% if method.returnType.kind == "enum" %}
@@ -19,6 +19,8 @@
     {% else %}
         {% if method.returnTypeName|contains:"[" and method.returnTypeName|contains:"]" %}
             .init()
+        {% elif method.returnTypeName|contains:"URL" %}
+            .init(string: "www.test.com").unsafelyUnwrapped
         {% else %}
             .fixture()
         {% endif %}

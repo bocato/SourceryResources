@@ -1,7 +1,7 @@
 {% macro defaultValueForType variable %}
     {% set foundationTypesWithNoFixture %} 
     [
-        "Date", "Data", "URL"
+        "Date", "Data"
     ]
     {% endset %}
     {% if variable.typeName.name == "String" %}
@@ -14,6 +14,8 @@
         false
     {% elif variable.typeName.name == "Date" %}
         .distantFuture
+    {% elif variable.typeName.name == "URL" %}
+        .init(string: "www.test.com").unsafelyUnwrapped
     {% elif foundationTypesWithNoFixture|contains: variable.typeName.name %}
         .init()
     {% elif variable.type.kind == "enum" %}

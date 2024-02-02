@@ -89,7 +89,7 @@ internal struct SomeServiceFailing: SomeServiceProtocol {
 
     internal func getURL() async throws -> URL {
         XCTFail("\(#function) is not implemented.")
-        return .init()
+        return .init(string: "www.test.com").unsafelyUnwrapped
     }
 
     internal func getArray() async throws -> [String] {

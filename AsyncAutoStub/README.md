@@ -129,7 +129,7 @@ internal final class SomeServiceStub: SomeServiceProtocol {
 
     // MARK: - getURL
 
-    internal var getURLResultToBeReturned: Result<URL, Error> = .success(.init())
+    internal var getURLResultToBeReturned: Result<URL, Error> = .success(.init(string: "www.test.com").unsafelyUnwrapped)
     internal func getURL() async throws -> URL {
         try getURLResultToBeReturned.get()
     }

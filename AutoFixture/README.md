@@ -132,7 +132,7 @@ internal extension MyModel {
         aSet: Set = .fixture(), 
         aDate: Date = .distantFuture, 
         aData: Data = .init(), 
-        anURL: URL = .init(), 
+        anURL: URL = .init(string: "www.test.com").unsafelyUnwrapped, 
         aSomething: Something = .fixture(), 
         anEnum: MyEnum = .firstCase
     ) -> Self {

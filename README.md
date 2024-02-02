@@ -111,7 +111,7 @@ internal extension MyModel {
         aSet: Set = .fixture(), 
         aDate: Date = .distantFuture, 
         aData: Data = .init(), 
-        anURL: URL = .init(), 
+        anURL: URL = .init(string: "www.test.com").unsafelyUnwrapped, 
         aSomething: Something = .fixture(), 
         anEnum: MyEnum = .firstCase
     ) -> Self {
@@ -201,7 +201,7 @@ internal final class SomeServiceStub: SomeServiceProtocol {
 
     // MARK: - getURL
 
-    internal var getURLResultToBeReturned: Result<URL, Error> = .success(.init())
+internal var getURLResultToBeReturned: Result<URL, Error> = .success(.init(string: "www.test.com").unsafelyUnwrapped)
     internal func getURL() async throws -> URL {
         try getURLResultToBeReturned.get()
     }
@@ -293,7 +293,7 @@ internal struct SomeServiceFailing: SomeServiceProtocol {
 
     internal func getURL() async throws -> URL {
         XCTFail("\(#function) is not implemented.")
-        return .init()
+        return .init(string: "www.test.com").unsafelyUnwrapped
     }
 
     internal func getArray() async throws -> [String] {
