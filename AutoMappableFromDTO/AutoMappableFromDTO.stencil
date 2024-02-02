@@ -17,8 +17,7 @@
         dto: {{ type.name }}DTO{% if type.variables.count > 1 %},{% endif %}
         {% for variable in type.variables %}
         {% if variable.isArray %}
-            {% set cleanArrayTypeReturn %} {% call getArrayTypeName variable %} {% endset %}
-            {% set cleanArrayType %}{{ cleanArrayTypeReturn|removeNewlines }}{% endset %}
+            {% set cleanArrayTypeReturn %} {% call getArrayTypeName variable %} {% endset %}{% set cleanArrayType %}{{ cleanArrayTypeReturn|removeNewlines }}{% endset %}
             {% if foundationTypes|contains:cleanArrayType %}
         map{{variable.name|upperFirstLetter}}FromDTO: ([{{cleanArrayType}}]) -> {{ variable.typeName }}{% if not forloop.last %},{% endif %}
             {% else %}
@@ -28,8 +27,9 @@
         {% endfor %}
     ) {
         {% for variable in type.variables %}
+        {% set cleanArrayTypeReturn %} {% call getArrayTypeName variable %} {% endset %}{% set cleanArrayType %}{{ cleanArrayTypeReturn|removeNewlines }}{% endset %}
         {% if variable.typeName.name|contains:"[" and variable.typeName.name|contains:"]" %}
-        {% if value %}
+        {% if not foundationTypes|contains:cleanArrayType %}
         self.{{variable.name}} = map{{variable.name|upperFirstLetter}}EntityFromDTO(dto.{{variable.name}})
         {% else %}
         self.{{variable.name}} = map{{variable.name|upperFirstLetter}}FromDTO(dto.{{variable.name}})

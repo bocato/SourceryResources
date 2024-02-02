@@ -49,7 +49,7 @@ internal extension MyObject {
         self.intValue = dto.intValue
         self.status = .init(dto: dto.status)
         self.stringList = mapStringListFromDTO(dto.stringList)
-        self.itemsList = mapItemsListFromDTO(dto.itemsList)
+        self.itemsList = mapItemsListEntityFromDTO(dto.itemsList)
     }
 }
 
