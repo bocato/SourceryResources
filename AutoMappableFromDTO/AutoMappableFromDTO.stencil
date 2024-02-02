@@ -12,18 +12,18 @@
     ]
 {% endset %}
 {% if not type.name|contains: "DTO" %}
-{{ type.accessLevel }} extension {{ type.name }} {
+{% newline %}{{ type.accessLevel }} extension {{ type.name }} {
     init(
-        dto: {{ type.name }}DTO
+        dto: {{ type.name }}DTO{% if type.variables.count > 1 %},{% endif %}
         {% for variable in type.variables %}
-        {% if variable.typeName.name|contains:"[" and variable.typeName.name|contains:"]" %}
-        {% set cleanArrayTypeReturn %} {% call getArrayTypeName variable %} {% endset %}
-        {% set cleanArrayType %}{{ cleanArrayTypeReturn|removeNewlines }}{% endset %}
-        {% if foundationTypes|contains:cleanArrayType %}
-        map{{variable.name|upperFirstLetter}}FromDTO: ([{{cleanArrayType}}]) -> {{ variable.typeName }}
-        {% else %}
-        map{{variable.name|upperFirstLetter}}EntityFromDTO: ([{{cleanArrayType}}DTO]) -> {{ variable.typeName }}
-        {% endif %}
+        {% if variable.isArray %}
+            {% set cleanArrayTypeReturn %} {% call getArrayTypeName variable %} {% endset %}
+            {% set cleanArrayType %}{{ cleanArrayTypeReturn|removeNewlines }}{% endset %}
+            {% if foundationTypes|contains:cleanArrayType %}
+        map{{variable.name|upperFirstLetter}}FromDTO: ([{{cleanArrayType}}]) -> {{ variable.typeName }}{% if not forloop.last %},{% endif %}
+            {% else %}
+        map{{variable.name|upperFirstLetter}}EntityFromDTO: ([{{cleanArrayType}}DTO]) -> {{ variable.typeName }}{% if not forloop.last %},{% endif %}
+            {% endif %}
         {% endif %}
         {% endfor %}
     ) {
@@ -41,6 +41,18 @@
         {% endif %}
         {% endfor %}
     }
-}{% newline %}
+}
 {% endif %}
+{% endfor %}
+
+{% for type in types.enums where type.cases.count > 0 %}
+{{type.accessLevel}} extension {{type.name}} {
+    init(dto: {{ type.name }}DTO)
+        switch dto {
+        {% for p in type.cases %}
+        case .{{p.name}}: self = .{{p.name}}
+        {% endfor %}
+        }
+    }
+}
 {% endfor %}

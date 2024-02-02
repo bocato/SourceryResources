@@ -30,6 +30,7 @@ struct MyObject {
 }
 
 // Output ➡️
+
 internal extension ListItem {
     init(
         dto: ListItemDTO
@@ -40,8 +41,8 @@ internal extension ListItem {
 
 internal extension MyObject {
     init(
-        dto: MyObjectDTO
-        mapStringListFromDTO: ([String]) -> [String]
+        dto: MyObjectDTO,
+        mapStringListFromDTO: ([String]) -> [String],
         mapItemsListEntityFromDTO: ([ListItemDTO]) -> [ListItem]
     ) {
         self.id = dto.id
@@ -49,6 +50,15 @@ internal extension MyObject {
         self.status = .init(dto: dto.status)
         self.stringList = mapStringListFromDTO(dto.stringList)
         self.itemsList = mapItemsListFromDTO(dto.itemsList)
+    }
+}
+
+internal extension Status {
+    init(dto: StatusDTO)
+        switch dto {
+        case .idle: self = .idle
+        case .completed: self = .completed
+        }
     }
 }
 ```
