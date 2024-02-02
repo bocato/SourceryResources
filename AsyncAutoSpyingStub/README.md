@@ -30,7 +30,7 @@ protocol SomethingRepositoryInterface {
 
 // MARK: - SomethingRepositoryInterfaceSpyingStub
 
-internal final class  SomethingRepositorySpyingStub: SomethingRepositoryInterface {
+internal final class SomethingRepositorySpyingStub: SomethingRepositoryInterface {
 
     internal init() {}
     

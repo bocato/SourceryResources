@@ -78,7 +78,7 @@
         {% call methodClosureName method %}?({% call methodClosureCallParameters method %})
     }
 {% else %}
-    {{ type.accessLevel }} func {{ method.name }}{{ ' throws' if method.throws }}{% if not method.returnTypeName.isVoid %} -> {{ method.returnTypeName }}{% endif %} {
+    {{ type.accessLevel }} func {{ method.name }}{{ ' async' if method.isAsync }}{{ ' throws' if method.throws }}{% if not method.returnTypeName.isVoid %} -> {{ method.returnTypeName }}{% endif %} {
         {% call swiftifyMethodName method.selectorName %}CallsCount += 1
         {% call methodReceivedParameters method %}
         {% if not method.returnTypeName.isVoid %}

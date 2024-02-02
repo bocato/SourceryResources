@@ -35,13 +35,19 @@
     {{ type.accessLevel }} init() {}
     {% for method in type.allMethods %}
 
-    {{ type.accessLevel }} func {{ method.name }} async throws {% if method.returnTypeName.name != "Void" %}-> {{ method.returnTypeName.name }} {% endif %}{
+    {% if method.isInitializer %}
+    required {{ method.name }} {
+        XCTFail("\(#function) is not implemented.")
+    }
+    {% else %}
+    {{ type.accessLevel }} func {{ method.name }}{{ ' async' if method.isAsync }}{{ ' throws' if method.throws }}{% if not method.returnTypeName.isVoid %} -> {{ method.returnTypeName }}{% endif %} {
         XCTFail("\(#function) is not implemented.")
         {% if method.returnTypeName.name != "Void" %}
         {% set returnValue %} {% call resolveReturnValueForReturnType method %} {% endset %}
         return {{ returnValue|removeNewlines }}
         {% endif %}
     }
+    {% endif %}
     {% endfor %}
 }
 {% endfor %}

@@ -90,7 +90,7 @@
         {% call methodClosureName method %}?({% call methodClosureCallParameters method %})
     }
 {% else %}
-    {{ type.accessLevel }} func {{ method.name }}{{ ' throws' if method.throws }}{% if not method.returnTypeName.isVoid %} -> {{ method.returnTypeName }}{% endif %} {
+    {{ type.accessLevel }} func {{ method.name }}{{ ' async' if method.isAsync }}{{ ' throws' if method.throws }}{% if not method.returnTypeName.isVoid %} -> {{ method.returnTypeName }}{% endif %} {
         {% call swiftifyMethodName method.selectorName %}CallsCount += 1
         {% call methodReceivedParameters method %}
         {% if not method.returnTypeName.isVoid %}
@@ -128,7 +128,7 @@
 {% set cleanTypeName %} {% call getCleanTypeName type.name %}  {% endset %}
 {% newline %}// MARK: - {{ type.name }}SpyingStub
 
-{{ type.accessLevel }} final class  {{ cleanTypeName|removeNewlines }}SpyingStub: {{ type.name }} {
+{{ type.accessLevel }} final class {{ cleanTypeName|removeNewlines }}SpyingStub: {{ type.name }} {
 
     {{ type.accessLevel }} init() {}
 {% for variable in type.allVariables|!definedInExtension %}

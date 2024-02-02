@@ -42,7 +42,7 @@
     {% else %}
     {{ type.accessLevel }} var {{ method.shortName }}ResultToBeReturned: Result<Void, Error> = .success(())
     {% endif %}
-    {{ type.accessLevel }} func {{ method.name }} async throws {% if method.returnTypeName.name != "Void" %}-> {{ method.returnTypeName.name }} {% endif %}{
+    {{ type.accessLevel }} func {{ method.name }}{{ ' async' if method.isAsync }}{{ ' throws' if method.throws }} {% if method.returnTypeName.name != "Void" %}-> {{ method.returnTypeName.name }} {% endif %}{
         try {{ method.shortName }}ResultToBeReturned.get()
     }
     {% endfor %}

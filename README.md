@@ -218,6 +218,7 @@ enum MyEnum {
 }
 
 protocol SomeServiceProtocol {
+    init(something: String)
     func getSomething(_ id: String) async throws -> Something
     func getEnum() async throws -> MyEnum
     func getDate() async throws -> Date
@@ -226,6 +227,7 @@ protocol SomeServiceProtocol {
     func getArray() async throws -> [String]
     func getDictionary() async throws -> [String: String]
     func postSomething() async throws
+    func postNoThrow() async
 }
 ```
 
@@ -239,6 +241,10 @@ import XCTestDynamicOverlay
 
 internal struct SomeServiceFailing: SomeServiceProtocol {
     internal init() {}
+
+    required init(something: String) {
+        XCTFail("\(#function) is not implemented.")
+    }
 
     internal func getSomething(_ id: String) async throws -> Something {
         XCTFail("\(#function) is not implemented.")
@@ -276,6 +282,10 @@ internal struct SomeServiceFailing: SomeServiceProtocol {
     }
 
     internal func postSomething() async throws {
+        XCTFail("\(#function) is not implemented.")
+    }
+
+    internal func postNoThrow() async {
         XCTFail("\(#function) is not implemented.")
     }
 }
@@ -411,7 +421,7 @@ protocol SomethingRepositoryInterface {
 
 // MARK: - SomethingRepositoryInterfaceSpyingStub
 
-internal final class  SomethingRepositorySpyingStub: SomethingRepositoryInterface {
+internal final class SomethingRepositorySpyingStub: SomethingRepositoryInterface {
 
     internal init() {}
     
