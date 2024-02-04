@@ -1,0 +1,146 @@
+import ComposableArchitecture
+import Dependencies
+import SwiftUI
+{% for type in types.all|annotated: "describesTCAFeature"%}
+
+// MARK: - State{% newline %}
+extension {{ type.name }} {
+    {{ type.accessLevel }} struct State{% if type.based.Equatable %}: Equatable{% endif %} {
+        {% for variable in type.variables %}
+        {{ type.accessLevel }} {% if variable.isMutable %}var{% else %}let{% endif %} {{ variable.name }}: {{ variable.typeName }}
+        {% endfor %}
+
+        {{ type.accessLevel }} init(
+        {% for variable in type.variables %}
+            {{ variable.name }}: {{ variable.typeName }}{% if variable.defaultValue %} = {{ variable.defaultValue }}{% endif %}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+        ) {
+        {% for variable in type.variables %}
+            self.{{ variable.name }} = {{ variable.name }}
+        {% endfor %}
+        }
+    }
+}
+
+// MARK: - Actions{% newline %}
+extension {{ type.name }} {
+    {{ type.accessLevel }} enum Action: Equatable {
+        case placeholder
+        {% if type|annotated: "containsComposition" %}
+        {% for variable in type.variables %}
+        {% if variable.typeName|contains:".State" %}
+        case {{ variable.name }}({{ variable.typeName|replace: "State","Action"|replace: "?",""|removeNewlines }})
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    }
+}
+
+// MARK: - Reducer{% newline %}
+{{ type.accessLevel }} struct {{ type.name }}: Reducer {
+    // MARK: - Dependencies{% newline %}
+    @Dependency(\.fireAndForget) var fireAndForget
+
+    {% if type|annotated:"containsComposition" %}
+    // MARK: - Composition{% newline %}
+    var body: some ReducerOf<{{ type.name }}> {
+        Reduce(reduceCore(into:action:))
+        {% for variable in type.variables %}
+        {% if variable.typeName|contains:".State" and variable.isOptional %}
+            .ifLet(
+                \.{{ variable.name }},
+                 action: /Action.{{ variable.name }},
+                 then: { {{ variable.typeName|replace: ".State?","" }}() }
+            )
+        {% endif %}
+        {% endfor %}
+        {% for variable in type.variables %}
+        {% if variable.typeName|contains:".State" and not variable.isOptional %}
+            Scope(
+                state: \.{{ variable.name }},
+                action: /Action.{{ variable.name }},
+                child: {{ variable.typeName|replace: ".State?","" }}() }
+            )
+        {% endif %}
+        {% endfor %}
+    }{% newline %}
+    // MARK: - Core Reducer{% newline %}
+    {{ type.accessLevel }} func reduceCore(
+        into state: inout State,
+        action: Action
+    ) -> ComposableArchitecture.Effect<Action> {
+        switch action {
+        case .placeholder:
+            return .none
+        {% if type|annotated: "containsComposition" %}
+        {% for variable in type.variables %}
+        {% if variable.typeName|contains:".State" %}
+        case let .{{ variable.name }}({{ variable.name }}Action):
+            return reduce{{ variable.typeName}}(
+                into: &state,
+                action: {{ variable.name }}Action
+            )
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+        }
+    }{% newline %}
+    {% for variable in type.variables where type|annotated: "containsComposition" %}
+    {% if variable.typeName|contains:".State" %}
+    {% set childTypeName %}{{ variable.typeName|replace: ".State",""|replace: "?","" }}{% endset %}
+    // MARK: - {{ variable.name|upperFirstLetter }} Reducer{% newline %}
+    {{ type.accessLevel }} func reduce{{ childTypeName|removeNewlines }}(
+        into state: inout State,
+        action: {{ childTypeName|removeNewlines }}Action
+    ) -> ComposableArchitecture.Effect<Action> {
+        switch action {
+        default: return .none // TODO: remove default` case
+        }
+    }{% newline %}
+    {% endif %}
+    {% endfor %}
+    {% else %}
+    // MARK: - Reducer{% newline %}
+    {{ type.accessLevel }} func reduce(
+        into state: inout State,
+        action: Action
+    ) -> ComposableArchitecture.Effect<Action> {
+        switch action {
+        case .placeholder:
+            return .none
+        }
+    }
+    {% endif %}
+    
+}
+
+// MARK: - Scene{% newline %}
+extension {{ type.name }} {
+    {{ type.accessLevel }} struct Scene: View {
+        let store: StoreOf<{{ type.name }}>
+
+        {{ type.accessLevel }} init(store: StoreOf<{{ type.name }}>) {
+            self.store = store
+        }
+
+        {{ type.accessLevel }} var body: some View {
+            ZStack {
+                Text("{{ type.name }}Scene")
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+}
+
+// MARK: Preview
+struct {{ type.name }}Scene_Previews: PreviewProvider {
+    static var previews: some View {
+        {{ type.name }}.Scene(
+            store: .init(
+                initialState: {{ type.name }}.State(),
+                reducer: { EmptyReducer() }
+            )
+        )
+    }
+}
+{% endfor %}
