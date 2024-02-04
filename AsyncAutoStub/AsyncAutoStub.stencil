@@ -29,24 +29,38 @@
 {% endmacro %}
 
 {% for type in types.protocols %}{# Use types.implementing.AsyncAutoStub instead of types.protocols if decided to have this protocol #}
-// MARK: - {{ type.name }}Stub
+{% newline %}// MARK: - {{ type.name }}Stub
 
 {% set cleanTypeName %} {% call getCleanTypeName type.name %}  {% endset %}
 {{ type.accessLevel }} final class {{ cleanTypeName|removeNewlines }}Stub: {{ type.name }} {
     {{ type.accessLevel }} init() {}
     {% for method in type.allMethods %}
+    {% if method.isInitializer and method.throws %}
 
     // MARK: - {{ method.shortName }}
 
-    {% if method.returnTypeName.name != "Void" %}
+    {{ type.accessLevel }} var {{ method.shortName }}ResultToBeReturned: Result<Void, Error> = .success(())
+    {{ type.accessLevel }} func {{ method.name }} {
+        try {{ method.shortName }}ResultToBeReturned.get()
+    }
+    {% elif not method.isInitializer %}
+
+    // MARK: - {{ method.shortName }}
+
+    {% if method.returnTypeName.name != "Void" and method.throws %}
     {% set returnValue %} {% call resolveReturnValueForReturnType method %} {% endset %}
     {{ type.accessLevel }} var {{ method.shortName }}ResultToBeReturned: Result<{{ method.returnTypeName.name }}, Error> = .success({{ returnValue|removeNewlines }})
-    {% else %}
+    {% elif method.returnTypeName.name == "Void" and method.throws %}
     {{ type.accessLevel }} var {{ method.shortName }}ResultToBeReturned: Result<Void, Error> = .success(())
     {% endif %}
+    {% if method.throws and not method.isInitializer %}
     {{ type.accessLevel }} func {{ method.name }}{{ ' async' if method.isAsync }}{{ ' throws' if method.throws }} {% if method.returnTypeName.name != "Void" %}-> {{ method.returnTypeName.name }} {% endif %}{
         try {{ method.shortName }}ResultToBeReturned.get()
     }
+    {% else %}
+    {{ type.accessLevel }} func {{ method.name }}{{ ' async' if method.isAsync }} {}
+    {% endif %}
+    {% endif %}
     {% endfor %}
 }
 {% endfor %}

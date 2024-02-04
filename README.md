@@ -503,6 +503,111 @@ internal final class SomethingRepositorySpyingStub: SomethingRepositoryInterface
 }
 ```
 
+## AsyncAutoStub
+
+Creates a `Stub` based on a dependency protocol, mostly applicable for datasources like services and repositories.
+NOTE: it assumes that all models returned have a `fixture` method previously defined.
+
+### Input ⬅️
+
+```swift
+enum MyEnum {
+    case firstCase
+    case secondCase
+}
+
+protocol SomethingRepositoryInterface {
+    init(input: String)
+    init(something: String) throws
+    func fetchSomething(_ id: String) async throws -> Something
+    func getEnum() async throws -> MyEnum
+    func getDate() async throws -> Date
+    func getData() async throws -> Data
+    func fetchURL() async throws -> URL
+    func fetchArray() async throws -> [String]
+    func fetchDictionary() async throws -> [String: String]
+    func saveSomething(stringParam: String, intParam: Int, somethingParam: Something) async throws
+    func saveSomethingNoThrow(_ data: Data) async
+}
+```
+
+### Output ➡️
+
+```swift
+
+// MARK: - SomethingRepositoryInterfaceStub
+
+internal final class SomethingRepositoryStub: SomethingRepositoryInterface {
+    internal init() {}
+
+    // MARK: - init
+
+    internal var initResultToBeReturned: Result<Void, Error> = .success(())
+    internal func init(something: String) {
+        try initResultToBeReturned.get()
+    }
+
+    // MARK: - fetchSomething
+
+    internal var fetchSomethingResultToBeReturned: Result<Something, Error> = .success(.fixture())
+    internal func fetchSomething(_ id: String) async throws -> Something {
+        try fetchSomethingResultToBeReturned.get()
+    }
+
+    // MARK: - getEnum
+
+    internal var getEnumResultToBeReturned: Result<MyEnum, Error> = .success(.firstCase)
+    internal func getEnum() async throws -> MyEnum {
+        try getEnumResultToBeReturned.get()
+    }
+
+    // MARK: - getDate
+
+    internal var getDateResultToBeReturned: Result<Date, Error> = .success(.init())
+    internal func getDate() async throws -> Date {
+        try getDateResultToBeReturned.get()
+    }
+
+    // MARK: - getData
+
+    internal var getDataResultToBeReturned: Result<Data, Error> = .success(.init())
+    internal func getData() async throws -> Data {
+        try getDataResultToBeReturned.get()
+    }
+
+    // MARK: - fetchURL
+
+    internal var fetchURLResultToBeReturned: Result<URL, Error> = .success(.init(string:"www.test.com").unsafelyUnwrapped)
+    internal func fetchURL() async throws -> URL {
+        try fetchURLResultToBeReturned.get()
+    }
+
+    // MARK: - fetchArray
+
+    internal var fetchArrayResultToBeReturned: Result<[String], Error> = .success(.init())
+    internal func fetchArray() async throws -> [String] {
+        try fetchArrayResultToBeReturned.get()
+    }
+
+    // MARK: - fetchDictionary
+
+    internal var fetchDictionaryResultToBeReturned: Result<[String: String], Error> = .success(.init())
+    internal func fetchDictionary() async throws -> [String: String] {
+        try fetchDictionaryResultToBeReturned.get()
+    }
+
+    // MARK: - saveSomething
+
+    internal var saveSomethingResultToBeReturned: Result<Void, Error> = .success(())
+    internal func saveSomething(stringParam: String, intParam: Int, somethingParam: Something) async throws {
+        try saveSomethingResultToBeReturned.get()
+    }
+
+    // MARK: - saveSomethingNoThrow
+
+    internal func saveSomethingNoThrow(_ data: Data) async {}
+}
+```
 ### AutoMappableFromDTO
 
 Creates the initializer for class that have a DTO in order to map from DTO to Domain entity.
@@ -532,97 +637,4 @@ extension MyObject {
         self.groups = .init(dto: dto.groups)
     }
 }
-```
-
-## AsyncAutoStub
-
-Creates a `Stub` based on a dependency protocol, mostly applicable for datasources like services and repositories.
-NOTE: it assumes that all models returned have a `fixture` method previously defined.
-
-### Input ⬅️
-
-```swift
-enum MyEnum {
-    case firstCase
-    case secondCase
-}
-
-protocol SomeServiceProtocol {
-    func getSomething(_ id: String) async throws -> Something
-    func getEnum() async throws -> MyEnum
-    func getDate() async throws -> Date
-    func getData() async throws -> Data
-    func getURL() async throws -> URL
-    func getArray() async throws -> [String]
-    func getDictionary() async throws -> [String: String]
-    func postSomething() async throws
-}
-```
-
-### Output ➡️
-
-```swift
-
-// MARK: - SomeServiceProtocolStub
-
-public final class SomeServiceStub: SomeServiceProtocol {
-    public init() {}
-
-    // MARK: - getSomething
-
-    public var getSomethingResultToBeReturned: Result<Something, Error> = .success(.fixture())
-    public func getSomething(_ id: String) async throws -> Something {
-        try getSomethingResultToBeReturned.get()
-    }
-
-    // MARK: - getEnum
-
-    public var getEnumResultToBeReturned: Result<MyEnum, Error> = .success(.firstCase)
-    public func getEnum() async throws -> MyEnum {
-        try getEnumResultToBeReturned.get()
-    }
-
-    // MARK: - getDate
-
-    public var getDateResultToBeReturned: Result<Date, Error> = .success(.init())
-    public func getDate() async throws -> Date {
-        try getDateResultToBeReturned.get()
-    }
-
-    // MARK: - getData
-
-    public var getDataResultToBeReturned: Result<Data, Error> = .success(.init())
-    public func getData() async throws -> Data {
-        try getDataResultToBeReturned.get()
-    }
-
-    // MARK: - getURL
-
-    public var getURLResultToBeReturned: Result<URL, Error> = .success(.init())
-    public func getURL() async throws -> URL {
-        try getURLResultToBeReturned.get()
-    }
-
-    // MARK: - getArray
-
-    public var getArrayResultToBeReturned: Result<[String], Error> = .success(.init())
-    public func getArray() async throws -> [String] {
-        try getArrayResultToBeReturned.get()
-    }
-
-    // MARK: - getDictionary
-
-    public var getDictionaryResultToBeReturned: Result<[String: String], Error> = .success(.init())
-    public func getDictionary() async throws -> [String: String] {
-        try getDictionaryResultToBeReturned.get()
-    }
-
-    // MARK: - postSomething
-
-    public var postSomethingResultToBeReturned: Result<Void, Error> = .success(())
-    public func postSomething() async throws {
-        try postSomethingResultToBeReturned.get()
-    }
-}
-#endif
 ```
