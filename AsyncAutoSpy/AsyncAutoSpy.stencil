@@ -9,6 +9,7 @@
 {% macro swiftifyMethodName name %}{% typed name as String %}{{ name | replace:"(","_" | replace:")","" | replace:":","_" | replace:"`","" | snakeToCamelCase | lowerFirstWord }}{% endmacro %}
 
 {% macro resolveReturnValueForReturnType method %}
+{% typed method as Method %}
     {% set foundationTypesWithNoFixture %} 
     [
         "Date", "Data"
@@ -117,8 +118,8 @@
 
 
 {% for type in types.protocols %} {# Use types.implementing.AsyncAutoSpy instead of types.protocols if decided to have this protocol #}
-
 {% newline %}// MARK: - {{ type.name }}Spy
+
 {% set cleanTypeName %} {% call getCleanTypeName type.name %}  {% endset %}
 {{ type.accessLevel }} final class {{ cleanTypeName|removeNewlines }}Spy: {{ type.name }} {
 

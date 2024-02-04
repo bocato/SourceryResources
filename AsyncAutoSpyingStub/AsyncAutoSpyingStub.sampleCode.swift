@@ -1,12 +1,17 @@
-enum SomeEnum {
+enum MyEnum {
     case firstCase
     case secondCase
 }
 
 protocol SomethingRepositoryInterface {
     init(input: String)
-    func fetchSomethingWithID(_ id: String) async throws -> Something
-    func fetchArrayOfSomething() async throws -> [Something]
-    func fetchArrayOfSomeEnum() async throws -> [SomeEnum]
-    func postSomething(stringParam: String, intParam: Int, somethingParam: Something) async throws
+    func fetchSomething(_ id: String) async throws -> Something
+    func getEnum() async throws -> MyEnum
+    func getDate() async throws -> Date
+    func getData() async throws -> Data
+    func fetchURL() async throws -> URL
+    func fetchArray() async throws -> [String]
+    func fetchDictionary() async throws -> [String: String]
+    func saveSomething(stringParam: String, intParam: Int, somethingParam: Something) async throws
+    func saveSomethingNoThrow(_ data: Data) async
 }
