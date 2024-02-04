@@ -14,6 +14,7 @@
         "Date", "Data"
     ]
     {% endset %}
+    {% typed method as Method %}
     {% if method.returnType.kind == "enum" %}
         .{{ method.returnType.cases.first.name }}
     {% elif foundationTypesWithNoFixture|contains: method.returnTypeName %}
@@ -32,11 +33,13 @@
 {% macro methodResultDeclaration method %}
 {% typed method as Method %}
 {% set returnValue %} {% call resolveReturnValueForReturnType method %} {% endset %}
+    {% if not method.isInitializer %}
     {% if method.returnTypeName.name != "Void" %}
     {% set returnValue %} {% call resolveReturnValueForReturnType method %} {% endset %}
     {{ type.accessLevel }} var {{ method.shortName }}ResultToBeReturned: Result<{{ method.returnTypeName.name }}, Error> = .success({{ returnValue|removeNewlines }})
     {% else %}
     {{ type.accessLevel }} var {{ method.shortName }}ResultToBeReturned: Result<Void, Error> = .success(())
+    {% endif %}
     {% endif %}
 {% endmacro %}
 
@@ -96,6 +99,8 @@
         {% call swiftifyMethodName method.selectorName %}CallsCount += 1
         {% call methodReceivedParameters method %}
         {% if not method.returnTypeName.isVoid %}
+        return try {{ method.shortName }}ResultToBeReturned.get()
+        {% elif method.throws and method.returnTypeName.isVoid %}
         return try {{ method.shortName }}ResultToBeReturned.get()
         {% endif %}
     }

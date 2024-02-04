@@ -168,96 +168,164 @@ _Based on `Protocol Mock` template from `Łukasz Kuczborski`_
 ### Input ⬅️
 
 ```swift
-enum SomeEnum {
+enum MyEnum {
     case firstCase
     case secondCase
 }
 
 protocol SomethingRepositoryInterface {
     init(input: String)
-    func fetchSomethingWithID(_ id: String) async throws -> Something
-    func fetchArrayOfSomething() async throws -> [Something]
-    func fetchArrayOfSomeEnum() async throws -> [SomeEnum]
-    func postSomething(stringParam: String, intParam: Int, somethingParam: Something) async throws
+    func fetchSomething(_ id: String) async throws -> Something
+    func getEnum() async throws -> MyEnum
+    func getDate() async throws -> Date
+    func getData() async throws -> Data
+    func fetchURL() async throws -> URL
+    func fetchArray() async throws -> [String]
+    func fetchDictionary() async throws -> [String: String]
+    func saveSomething(stringParam: String, intParam: Int, somethingParam: Something) async throws
+    func saveSomethingNoThrow(_ data: Data) async
 }
 ```
 
 ### Output ➡️
-
 ```swift
 
 // MARK: - SomethingRepositoryInterfaceSpy
 
-public final class  SomethingRepositoryInterfaceSpy: SomethingRepositoryInterface {
+internal final class SomethingRepositorySpy: SomethingRepositoryInterface {
 
+    internal init() {}
+    
    // MARK: - init
 
-    public var initInputReceivedInput: String?
-    public var initInputReceivedInvocations: [String] = []
-    public var initInputClosure: ((String) -> Void)?
+    internal var initInputReceivedInput: String?
+    internal var initInputReceivedInvocations: [String] = []
+    internal var initInputClosure: ((String) -> Void)?
 
     required init(input: String) {
         initInputReceivedInput = input
         initInputReceivedInvocations.append(input)
         initInputClosure?(input)
     }
+    
+   // MARK: - fetchSomething
 
-   // MARK: - fetchSomethingWithID
-
-    public var fetchSomethingWithIDCallsCount = 0
-    public var fetchSomethingWithIDCalled: Bool {
-        fetchSomethingWithIDCallsCount > 0
+    internal var fetchSomethingCallsCount = 0
+    internal var fetchSomethingCalled: Bool {
+        fetchSomethingCallsCount > 0
     }
-    public var fetchSomethingWithIDReceivedId: String?
-    public var fetchSomethingWithIDReceivedInvocations: [String] = []
+    internal var fetchSomethingReceivedId: String?
+    internal var fetchSomethingReceivedInvocations: [String] = []
 
-    public func fetchSomethingWithID(_ id: String) throws -> Something {
-        fetchSomethingWithIDCallsCount += 1
-        fetchSomethingWithIDReceivedId = id
-        fetchSomethingWithIDReceivedInvocations.append(id)
+    internal func fetchSomething(_ id: String) async throws -> Something {
+        fetchSomethingCallsCount += 1
+        fetchSomethingReceivedId = id
+        fetchSomethingReceivedInvocations.append(id)
         return .fixture()
     }
+    
+   // MARK: - getEnum
 
-   // MARK: - fetchArrayOfSomething
-
-    public var fetchArrayOfSomethingCallsCount = 0
-    public var fetchArrayOfSomethingCalled: Bool {
-        fetchArrayOfSomethingCallsCount > 0
+    internal var getEnumCallsCount = 0
+    internal var getEnumCalled: Bool {
+        getEnumCallsCount > 0
     }
 
-    public func fetchArrayOfSomething() throws -> [Something] {
-        fetchArrayOfSomethingCallsCount += 1
+    internal func getEnum() async throws -> MyEnum {
+        getEnumCallsCount += 1
+        return .firstCase
+    }
+    
+   // MARK: - getDate
+
+    internal var getDateCallsCount = 0
+    internal var getDateCalled: Bool {
+        getDateCallsCount > 0
+    }
+
+    internal func getDate() async throws -> Date {
+        getDateCallsCount += 1
         return .init()
     }
+    
+   // MARK: - getData
 
-   // MARK: - fetchArrayOfSomeEnum
-
-    public var fetchArrayOfSomeEnumCallsCount = 0
-    public var fetchArrayOfSomeEnumCalled: Bool {
-        fetchArrayOfSomeEnumCallsCount > 0
+    internal var getDataCallsCount = 0
+    internal var getDataCalled: Bool {
+        getDataCallsCount > 0
     }
 
-    public func fetchArrayOfSomeEnum() throws -> [SomeEnum] {
-        fetchArrayOfSomeEnumCallsCount += 1
+    internal func getData() async throws -> Data {
+        getDataCallsCount += 1
         return .init()
     }
+    
+   // MARK: - fetchURL
 
-   // MARK: - postSomething
-
-    public var postSomethingStringParamIntParamSomethingParamCallsCount = 0
-    public var postSomethingStringParamIntParamSomethingParamCalled: Bool {
-        postSomethingStringParamIntParamSomethingParamCallsCount > 0
+    internal var fetchURLCallsCount = 0
+    internal var fetchURLCalled: Bool {
+        fetchURLCallsCount > 0
     }
-    public var postSomethingStringParamIntParamSomethingParamReceivedArguments: (stringParam: String, intParam: Int, somethingParam: Something)?
-    public var postSomethingStringParamIntParamSomethingParamReceivedInvocations: [(stringParam: String, intParam: Int, somethingParam: Something)] = []
 
-    public func postSomething(stringParam: String, intParam: Int, somethingParam: Something) throws {
-        postSomethingStringParamIntParamSomethingParamCallsCount += 1
-        postSomethingStringParamIntParamSomethingParamReceivedArguments = (stringParam: stringParam, intParam: intParam, somethingParam: somethingParam)
-        postSomethingStringParamIntParamSomethingParamReceivedInvocations.append((stringParam: stringParam, intParam: intParam, somethingParam: somethingParam))
+    internal func fetchURL() async throws -> URL {
+        fetchURLCallsCount += 1
+        return .init(string:"www.test.com").unsafelyUnwrapped
+    }
+    
+   // MARK: - fetchArray
+
+    internal var fetchArrayCallsCount = 0
+    internal var fetchArrayCalled: Bool {
+        fetchArrayCallsCount > 0
+    }
+
+    internal func fetchArray() async throws -> [String] {
+        fetchArrayCallsCount += 1
+        return .init()
+    }
+    
+   // MARK: - fetchDictionary
+
+    internal var fetchDictionaryCallsCount = 0
+    internal var fetchDictionaryCalled: Bool {
+        fetchDictionaryCallsCount > 0
+    }
+
+    internal func fetchDictionary() async throws -> [String: String] {
+        fetchDictionaryCallsCount += 1
+        return .init()
+    }
+    
+   // MARK: - saveSomething
+
+    internal var saveSomethingStringParamIntParamSomethingParamCallsCount = 0
+    internal var saveSomethingStringParamIntParamSomethingParamCalled: Bool {
+        saveSomethingStringParamIntParamSomethingParamCallsCount > 0
+    }
+    internal var saveSomethingStringParamIntParamSomethingParamReceivedArguments: (stringParam: String, intParam: Int, somethingParam: Something)?
+    internal var saveSomethingStringParamIntParamSomethingParamReceivedInvocations: [(stringParam: String, intParam: Int, somethingParam: Something)] = []
+
+    internal func saveSomething(stringParam: String, intParam: Int, somethingParam: Something) async throws {
+        saveSomethingStringParamIntParamSomethingParamCallsCount += 1
+        saveSomethingStringParamIntParamSomethingParamReceivedArguments = (stringParam: stringParam, intParam: intParam, somethingParam: somethingParam)
+        saveSomethingStringParamIntParamSomethingParamReceivedInvocations.append((stringParam: stringParam, intParam: intParam, somethingParam: somethingParam))
+    }
+    
+   // MARK: - saveSomethingNoThrow
+
+    internal var saveSomethingNoThrowCallsCount = 0
+    internal var saveSomethingNoThrowCalled: Bool {
+        saveSomethingNoThrowCallsCount > 0
+    }
+    internal var saveSomethingNoThrowReceivedData: Data?
+    internal var saveSomethingNoThrowReceivedInvocations: [Data] = []
+
+    internal func saveSomethingNoThrow(_ data: Data) async {
+        saveSomethingNoThrowCallsCount += 1
+        saveSomethingNoThrowReceivedData = data
+        saveSomethingNoThrowReceivedInvocations.append(data)
     }
 }
-#endif
 ```
 
 ## AsyncAutoSpyingStub
@@ -289,81 +357,150 @@ protocol SomethingRepositoryInterface {
 
 // MARK: - SomethingRepositoryInterfaceSpyingStub
 
-public final class  SomethingRepositoryInterfaceSpyingStub: SomethingRepositoryInterface {
+internal final class SomethingRepositorySpyingStub: SomethingRepositoryInterface {
 
+    internal init() {}
+    
    // MARK: - init
 
-    public var initInputResultToBeReturned: Result<SomethingRepositoryInterface, Error> = .success(.fixture())
-    public var initInputReceivedInput: String?
-    public var initInputReceivedInvocations: [String] = []
-    public var initInputClosure: ((String) -> Void)?
+    internal var initInputReceivedInput: String?
+    internal var initInputReceivedInvocations: [String] = []
+    internal var initInputClosure: ((String) -> Void)?
 
     required init(input: String) {
         initInputReceivedInput = input
         initInputReceivedInvocations.append(input)
         initInputClosure?(input)
     }
+    
+   // MARK: - fetchSomething
 
-   // MARK: - fetchSomethingWithID
-
-    public var fetchSomethingWithIDResultToBeReturned: Result<Something, Error> = .success(.fixture())
-    public var fetchSomethingWithIDCallsCount = 0
-    public var fetchSomethingWithIDCalled: Bool {
-        fetchSomethingWithIDCallsCount > 0
+    internal var fetchSomethingResultToBeReturned: Result<Something, Error> = .success(.fixture())
+    internal var fetchSomethingCallsCount = 0
+    internal var fetchSomethingCalled: Bool {
+        fetchSomethingCallsCount > 0
     }
-    public var fetchSomethingWithIDReceivedId: String?
-    public var fetchSomethingWithIDReceivedInvocations: [String] = []
+    internal var fetchSomethingReceivedId: String?
+    internal var fetchSomethingReceivedInvocations: [String] = []
 
-    public func fetchSomethingWithID(_ id: String) throws -> Something {
-        fetchSomethingWithIDCallsCount += 1
-        fetchSomethingWithIDReceivedId = id
-        fetchSomethingWithIDReceivedInvocations.append(id)
-        return try fetchSomethingWithIDResultToBeReturned.get()
+    internal func fetchSomething(_ id: String) async throws -> Something {
+        fetchSomethingCallsCount += 1
+        fetchSomethingReceivedId = id
+        fetchSomethingReceivedInvocations.append(id)
+        return try fetchSomethingResultToBeReturned.get()
     }
+    
+   // MARK: - getEnum
 
-   // MARK: - fetchArrayOfSomething
-
-    public var fetchArrayOfSomethingResultToBeReturned: Result<[Something], Error> = .success(.init())
-    public var fetchArrayOfSomethingCallsCount = 0
-    public var fetchArrayOfSomethingCalled: Bool {
-        fetchArrayOfSomethingCallsCount > 0
-    }
-
-    public func fetchArrayOfSomething() throws -> [Something] {
-        fetchArrayOfSomethingCallsCount += 1
-        return try fetchArrayOfSomethingResultToBeReturned.get()
+    internal var getEnumResultToBeReturned: Result<MyEnum, Error> = .success(.firstCase)
+    internal var getEnumCallsCount = 0
+    internal var getEnumCalled: Bool {
+        getEnumCallsCount > 0
     }
 
-   // MARK: - fetchArrayOfSomeEnum
+    internal func getEnum() async throws -> MyEnum {
+        getEnumCallsCount += 1
+        return try getEnumResultToBeReturned.get()
+    }
+    
+   // MARK: - getDate
 
-    public var fetchArrayOfSomeEnumResultToBeReturned: Result<[SomeEnum], Error> = .success(.init())
-    public var fetchArrayOfSomeEnumCallsCount = 0
-    public var fetchArrayOfSomeEnumCalled: Bool {
-        fetchArrayOfSomeEnumCallsCount > 0
+    internal var getDateResultToBeReturned: Result<Date, Error> = .success(.init())
+    internal var getDateCallsCount = 0
+    internal var getDateCalled: Bool {
+        getDateCallsCount > 0
     }
 
-    public func fetchArrayOfSomeEnum() throws -> [SomeEnum] {
-        fetchArrayOfSomeEnumCallsCount += 1
-        return try fetchArrayOfSomeEnumResultToBeReturned.get()
+    internal func getDate() async throws -> Date {
+        getDateCallsCount += 1
+        return try getDateResultToBeReturned.get()
+    }
+    
+   // MARK: - getData
+
+    internal var getDataResultToBeReturned: Result<Data, Error> = .success(.init())
+    internal var getDataCallsCount = 0
+    internal var getDataCalled: Bool {
+        getDataCallsCount > 0
     }
 
-   // MARK: - postSomething
-
-    public var postSomethingStringParamIntParamSomethingParamResultToBeReturned: Result<Void, Error> = .success(.fixture())
-    public var postSomethingStringParamIntParamSomethingParamCallsCount = 0
-    public var postSomethingStringParamIntParamSomethingParamCalled: Bool {
-        postSomethingStringParamIntParamSomethingParamCallsCount > 0
+    internal func getData() async throws -> Data {
+        getDataCallsCount += 1
+        return try getDataResultToBeReturned.get()
     }
-    public var postSomethingStringParamIntParamSomethingParamReceivedArguments: (stringParam: String, intParam: Int, somethingParam: Something)?
-    public var postSomethingStringParamIntParamSomethingParamReceivedInvocations: [(stringParam: String, intParam: Int, somethingParam: Something)] = []
+    
+   // MARK: - fetchURL
 
-    public func postSomething(stringParam: String, intParam: Int, somethingParam: Something) throws {
-        postSomethingStringParamIntParamSomethingParamCallsCount += 1
-        postSomethingStringParamIntParamSomethingParamReceivedArguments = (stringParam: stringParam, intParam: intParam, somethingParam: somethingParam)
-        postSomethingStringParamIntParamSomethingParamReceivedInvocations.append((stringParam: stringParam, intParam: intParam, somethingParam: somethingParam))
+    internal var fetchURLResultToBeReturned: Result<URL, Error> = .success(.init(string:"www.test.com").unsafelyUnwrapped)
+    internal var fetchURLCallsCount = 0
+    internal var fetchURLCalled: Bool {
+        fetchURLCallsCount > 0
+    }
+
+    internal func fetchURL() async throws -> URL {
+        fetchURLCallsCount += 1
+        return try fetchURLResultToBeReturned.get()
+    }
+    
+   // MARK: - fetchArray
+
+    internal var fetchArrayResultToBeReturned: Result<[String], Error> = .success(.init())
+    internal var fetchArrayCallsCount = 0
+    internal var fetchArrayCalled: Bool {
+        fetchArrayCallsCount > 0
+    }
+
+    internal func fetchArray() async throws -> [String] {
+        fetchArrayCallsCount += 1
+        return try fetchArrayResultToBeReturned.get()
+    }
+    
+   // MARK: - fetchDictionary
+
+    internal var fetchDictionaryResultToBeReturned: Result<[String: String], Error> = .success(.init())
+    internal var fetchDictionaryCallsCount = 0
+    internal var fetchDictionaryCalled: Bool {
+        fetchDictionaryCallsCount > 0
+    }
+
+    internal func fetchDictionary() async throws -> [String: String] {
+        fetchDictionaryCallsCount += 1
+        return try fetchDictionaryResultToBeReturned.get()
+    }
+    
+   // MARK: - saveSomething
+
+    internal var saveSomethingResultToBeReturned: Result<Void, Error> = .success(())
+    internal var saveSomethingStringParamIntParamSomethingParamCallsCount = 0
+    internal var saveSomethingStringParamIntParamSomethingParamCalled: Bool {
+        saveSomethingStringParamIntParamSomethingParamCallsCount > 0
+    }
+    internal var saveSomethingStringParamIntParamSomethingParamReceivedArguments: (stringParam: String, intParam: Int, somethingParam: Something)?
+    internal var saveSomethingStringParamIntParamSomethingParamReceivedInvocations: [(stringParam: String, intParam: Int, somethingParam: Something)] = []
+
+    internal func saveSomething(stringParam: String, intParam: Int, somethingParam: Something) async throws {
+        saveSomethingStringParamIntParamSomethingParamCallsCount += 1
+        saveSomethingStringParamIntParamSomethingParamReceivedArguments = (stringParam: stringParam, intParam: intParam, somethingParam: somethingParam)
+        saveSomethingStringParamIntParamSomethingParamReceivedInvocations.append((stringParam: stringParam, intParam: intParam, somethingParam: somethingParam))
+        return try saveSomethingResultToBeReturned.get()
+    }
+    
+   // MARK: - saveSomethingNoThrow
+
+    internal var saveSomethingNoThrowResultToBeReturned: Result<Void, Error> = .success(())
+    internal var saveSomethingNoThrowCallsCount = 0
+    internal var saveSomethingNoThrowCalled: Bool {
+        saveSomethingNoThrowCallsCount > 0
+    }
+    internal var saveSomethingNoThrowReceivedData: Data?
+    internal var saveSomethingNoThrowReceivedInvocations: [Data] = []
+
+    internal func saveSomethingNoThrow(_ data: Data) async {
+        saveSomethingNoThrowCallsCount += 1
+        saveSomethingNoThrowReceivedData = data
+        saveSomethingNoThrowReceivedInvocations.append(data)
     }
 }
-#endif
 ```
 
 ### AutoMappableFromDTO
