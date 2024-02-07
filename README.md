@@ -910,7 +910,7 @@ struct ComposedFeatureScene_Previews: PreviewProvider {
 ```
 
 ### SwiftDependencies Auto-Registration
-CGenerates code that automates the registration of dependencies using the [swift-dependencies](https://github.com/pointfreeco/swift-dependencies) library. It identifies protocols and structs marked with the `swiftDepAutoregister` annotation, automatically registering them for dependency injection.
+Generates code that automates the registration of dependencies using the [swift-dependencies](https://github.com/pointfreeco/swift-dependencies) library. It identifies protocols and structs marked with the `swiftDepAutoregister` annotation, automatically registering them for dependency injection.
 
 #### Definitions and Options
 All specification structs or protocols that you intend on registering should contain `// sourcery: swiftDepAutoregister` annotation
