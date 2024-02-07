@@ -1,0 +1,75 @@
+{# Helper Functions #}
+{% macro getCleanTypeName typeName %}
+{% typed typeName as String %}
+    {% if typeName|contains: "Interface" %}
+        {{ typeName|replace: "Interface", ""}}
+    {% elif typeName|contains: "Protocol" %}
+        {{ typeName|replace: "Protocol", ""}}
+    {% endif %}
+{% endmacro %}
+
+{% macro buildHeaderForType type isProtocol %}
+{% typed type as Type %} 
+{% newline %}// MARK: - Dependency Injection {% newline %}
+import Dependencies {% if not isProtocol %}{% newline %}{% endif %}
+{% if isProtocol. %}
+import XCTestDynamicOverlay{% newline %}
+{% endif %}
+{% endmacro %}
+
+{% macro buildDependencyKeyForType type isProtocol %}
+{% typed type as Type %} 
+{% set cleanTypeName %} {% call getCleanTypeName type.name %} {% endset %}
+{% if isProtocol %}
+{{ type.accessLevel }} enum {{ cleanTypeName|removeNewlines }}DependencyKey: TestDependencyKey {
+    static var testValue: {{ type.name }} {
+        #if DEBUG
+        return {{ cleanTypeName|removeNewlines }}Failing()
+        #else
+        fatalError("`testValue` should not be acessed on non DEBUG builds.")
+        #endif
+    }
+}
+{% else %}
+extension {{ type.name }}: TestDependencyKey {
+    {{ type.accessLevel }} static var testValue: {{ type.name }} {
+        return .init(
+        {% for variable in type.allVariables %}
+            {{ variable.name }}: unimplemented(){% if not forloop.last %}, {% endif %}
+        {% endfor %}
+        )
+    }
+}
+{% endif %}
+{% endmacro %}
+
+{% macro buildDependencyValueForType type isProtocol %}
+{% typed type as Type %} 
+{% set cleanTypeName %} {% call getCleanTypeName type.name %} {% endset %}
+{% newline %}{{ type.accessLevel }} extension DependencyValues {
+    {% set dependencyKey %} 
+    {% if isProtocol %}
+        {{ cleanTypeName|removeNewlines }}DependencyKey
+    {% else %}
+        {{ type.name }}
+    {% endif %}
+    {% endset %}
+    var {{ cleanTypeName|removeNewlines|lowerFirstLetter }}: {{ type.name }} {
+        get { self[{{ dependencyKey|removeNewlines }}.self] }
+        set { self[{{ dependencyKey|removeNewlines }}.self] = newValue }
+    }
+}
+{% endmacro %}
+
+{# Generators #}
+{% for type in types.protocols|annotated:"swiftDepAutoregister" %}
+{% call buildHeaderForType type true %}
+{% call buildDependencyKeyForType type true %}
+{% call buildDependencyValueForType type true %}
+{% endfor %}
+
+{% for type in types.structs|annotated:"swiftDepAutoregister" %}
+{% call buildHeaderForType type false %}
+{% call buildDependencyKeyForType type false %}
+{% call buildDependencyValueForType type false %}
+{% endfor %}
