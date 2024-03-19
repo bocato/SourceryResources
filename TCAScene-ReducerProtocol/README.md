@@ -5,8 +5,7 @@ Creates a TCA Scaffold from a specification struct, based on the Reducer protoco
 #### Definitions and Options
 1. The selected struct is only used as a specification for the TCAFeature and should be deleted after generation
 2. All specification structs should contain `// sourcery: describesTCAFeature` annotation
-3. In case the specification contains other TCAFeatures as properties (i.e. Composition),
-// it should containt // sourcery: containsComposition` annotation 
+3. In case the specification contains other TCAFeatures as properties (i.e. Composition), it should contain `// sourcery: containsComposition` annotation 
 
 #### Example 1: Simple Feature (No Composition)
 ```swift
